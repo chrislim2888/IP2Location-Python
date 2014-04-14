@@ -1,0 +1,39 @@
+6.0.0 2013-05-23
+    * Ported into pure python.
+	* Remove IP2Location.c library.
+	
+5.0.0	2013-04-16
+	* Support IP2Location DB21 - DB24
+	* New function get_elevation()
+	* New function get_usage_type()
+
+4.0.0	2010-08-12
+	* Support IP2Location DB19 - DB20
+	* New function get_mcc()
+	* New function get_mnc()
+	* New function get_mobile_brand()
+
+3.0.0	2008-08-13
+	* Support IP2Location DB1 - DB14
+	* New function get_idd_code()
+	* New function get_area_code()
+	* New function get_weather_code()
+	* New function get_weather_name()
+
+2.1.1	2006-11-17
+	* Initial release
+	* Support IP2Location IPv6
+	* Support IP2Location DB1 - DB14
+  * New function open()             
+	* New function get_country_short()
+  * New function get_country_long() 
+  * New function get_region()       
+  * New function get_city()         
+  * New function get_isp()          
+  * New function get_latitude()     
+  * New function get_longitude()    
+  * New function get_domain()       
+  * New function get_zipcode()
+  * New function get_timezone()
+  * New function get_netspeed()
+  * New function get_all()       
