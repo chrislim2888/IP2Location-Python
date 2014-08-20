@@ -1,5 +1,38 @@
+import sys
 import struct
 import socket
+
+if sys.version < '3':
+    def u(x):
+        return x.decode('utf-8')
+    def b(x):
+        return str(x)
+else:
+    def u(x):
+        if isinstance(x, bytes):
+            return x.decode()
+        return x
+    def b(x):
+        if isinstance(x, bytes):
+            return x
+        return x.encode('ascii')
+        
+# Windows version of Python does not provide it
+#          for compatibility with older versions of Windows.
+if not hasattr(socket, 'inet_pton'):
+    def inet_pton(t, addr):
+        import ctypes
+        a = ctypes.WinDLL('ws2_32.dll')
+        in_addr_p = ctypes.create_string_buffer(b(addr))
+        if t == socket.AF_INET:
+            out_addr_p = ctypes.create_string_buffer(4)
+        elif t == socket.AF_INET6:
+            out_addr_p = ctypes.create_string_buffer(16)
+        n = a.inet_pton(t, in_addr_p, out_addr_p)
+        if n == 0:
+            raise ValueError('Invalid address')
+        return out_addr_p.raw
+    socket.inet_pton = inet_pton
 
 class IP2LocationRecord:
     ''' IP2Location record with all fields from the database '''
@@ -51,26 +84,28 @@ _MOBILEBRAND_POSITION         = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 _ELEVATION_POSITION           = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 19, 0, 19)
 _USAGETYPE_POSITION           = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 20)
 
-_IPV4 = 0
-_IPV6 = 1
-
 class IP2Location(object):
     ''' IP2Location database '''
 
     def __init__(self, filename=None):
+        ''' Creates a database object and opens a file if filename is given
+            
+        '''
         if filename:
             self.open(filename)
 
     def open(self, filename):
+        ''' Opens a database file '''
         self._f = open(filename, 'rb')
         self._dbtype = struct.unpack('B', self._f.read(1))[0]
         self._dbcolumn = struct.unpack('B', self._f.read(1))[0]
         self._dbyear = struct.unpack('B', self._f.read(1))[0]
         self._dbmonth = struct.unpack('B', self._f.read(1))[0]
         self._dbday = struct.unpack('B', self._f.read(1))[0]
-        self._dbcount = struct.unpack('<I', self._f.read(4))[0]
-        self._dbaddr = struct.unpack('<I', self._f.read(4))[0]
-        self._ipversion = struct.unpack('<I', self._f.read(4))[0]
+        self._ipv4dbcount = struct.unpack('<I', self._f.read(4))[0]
+        self._ipv4dbaddr = struct.unpack('<I', self._f.read(4))[0]
+        self._ipv6dbcount = struct.unpack('<I', self._f.read(4))[0]
+        self._ipv6dbaddr = struct.unpack('<I', self._f.read(4))[0]
 
     def get_country_short(self, ip):
         ''' Get country_short '''
@@ -152,18 +187,33 @@ class IP2Location(object):
         ''' Get usage_type '''
         rec = self.get_all(ip)
         return rec and rec.usage_type
-    def get_all(self, ip):
-        ''' Get all '''
-        return self._get_record(ip)
 
-    def find(self, ip):
-        ''' Find IP record '''
-        return self._get_record(ip)
+    def get_all(self, addr):
+        ''' Get the whole record with all fields read from the file
+
+            Arguments:
+
+            addr: IPv4 or IPv6 address as a string
+     
+            Returns IP2LocationRecord or None if address not found in file
+        '''
+        return self._get_record(addr)
+
+    def find(self, addr):
+        ''' Get the whole record with all fields read from the file
+
+            Arguments:
+
+            addr: IPv4 or IPv6 address as a string
+     
+            Returns IP2LocationRecord or None if address not found in file
+        '''
+        return self._get_record(addr)
 
     def _reads(self, offset):
         self._f.seek(offset - 1)
         n = struct.unpack('B', self._f.read(1))[0]
-        return str(self._f.read(n))
+        return u(self._f.read(n))
 
     def _readi(self, offset):
         self._f.seek(offset - 1)
@@ -173,31 +223,33 @@ class IP2Location(object):
         self._f.seek(offset - 1)
         return struct.unpack('<f', self._f.read(4))[0]
 
-    def _readip(self, offset):
-        if self._ipversion == _IPV4:
+    def _readip(self, offset, ipv):
+        if ipv == 4:
             return self._readi(offset)
-        elif self._ipversion == _IPV6:
+        elif ipv == 6:
             a, b, c, d = self._readi(offset), self._readi(offset + 4), self._readi(offset + 8), self._readi(offset + 12) 
             return (d << 96) | (c << 64) | (b << 32) | a
 
-    def _readips(self, offset):
-        if self._ipversion == _IPV4:
+    def _readips(self, offset, ipv):
+        if ipv == 4:
             return socket.inet_ntoa(struct.pack('!L', self._readi(offset)))
-        elif self._ipversion == _IPV6:
-            return str(self._readip(offset))
+        elif ipv == 6:
+            return str(self._readip(offset, ipv))
 
-    def _read_record(self, mid):
-        baseaddr = self._dbaddr
+    def _read_record(self, mid, ipv):
         rec = IP2LocationRecord()
-        rec.ip = self._readips(baseaddr + (mid) * self._dbcolumn * 4)
 
-        if self._ipversion == _IPV4:
+        if ipv == 4:
             off = 0
-        elif self._ipversion == _IPV6:
+            baseaddr = self._ipv4dbaddr
+        elif ipv == 6:
             off = 12
+            baseaddr = self._ipv6dbaddr
+
+        rec.ip = self._readips(baseaddr + (mid) * self._dbcolumn * 4, ipv)
 
         def calc_off(what, mid):
-            return self._dbaddr + mid * (self._dbcolumn * 4 + off) + off + 4 * (what[self._dbtype]-1)
+            return baseaddr + mid * (self._dbcolumn * 4 + off) + off + 4 * (what[self._dbtype]-1)
 
         if _COUNTRY_POSITION[self._dbtype] != 0:
             rec.country_short = self._reads(self._readi(calc_off(_COUNTRY_POSITION, mid)) + 1)
@@ -257,33 +309,58 @@ class IP2Location(object):
         return rec
 
     def __iter__(self):
-        low = 0
-        high = self._dbcount
-
+        low, high = 0, self._ipv4dbcount
         while low <= high:
-            yield self._read_record(low)
+            yield self._read_record(low, 4)
             low += 1
-  
-    def _get_record(self, ip):
-        baseaddr = self._dbaddr
-        low = 0
-        high = self._dbcount
 
-        if self._ipversion == _IPV4:
-            ipno = struct.unpack('!L', socket.inet_aton(ip))[0]
+        low, high = 0, self._ipv6dbcount
+        while low <= high:
+            yield self._read_record(low, 6)
+            low += 1
+
+    def _parse_addr(self, addr): 
+        ''' Parses address and returns IP version. Raises exception on invalid argument '''
+        ipv = 0
+        try:
+            socket.inet_pton(socket.AF_INET6, addr)
+            # Convert ::FFFF:x.y.z.y to IPv4
+            if addr.lower().startswith('::ffff:'):
+                try:
+                    socket.inet_pton(socket.AF_INET, addr)
+                    ipv = 4
+                except:
+                    ipv = 6
+            else:
+                ipv = 6
+        except:
+            socket.inet_pton(socket.AF_INET, addr)
+            ipv = 4
+        return ipv
+        
+    def _get_record(self, ip):
+
+        ipv = self._parse_addr(ip) 
+        if ipv == 4:
+            ipno = struct.unpack('!L', socket.inet_pton(socket.AF_INET, ip))[0]
             off = 0
-        elif self._ipversion == _IPV6:
+            baseaddr = self._ipv4dbaddr
+            high = self._ipv4dbcount
+        elif ipv == 6:
             a, b = struct.unpack('!QQ', socket.inet_pton(socket.AF_INET6, ip))
             ipno = (a << 64) | b
             off = 12
+            baseaddr = self._ipv6dbaddr
+            high = self._ipv6dbcount
 
+        low = 0
         while low <= high:
             mid = int((low + high) / 2)
-            ipfrom = self._readip(baseaddr + (mid) * (self._dbcolumn * 4 + off))
-            ipto = self._readip(baseaddr + (mid + 1) * (self._dbcolumn * 4 + off))
+            ipfrom = self._readip(baseaddr + (mid) * (self._dbcolumn * 4 + off), ipv)
+            ipto = self._readip(baseaddr + (mid + 1) * (self._dbcolumn * 4 + off), ipv)
 
             if ipfrom <= ipno < ipto:
-                return self._read_record(mid)
+                return self._read_record(mid, ipv)
             else:
                 if ipno < ipfrom:
                     high = mid - 1

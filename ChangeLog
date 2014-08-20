@@ -1,5 +1,8 @@
+7.0.0 2014-08-07
+	* Support IPv6 records
+
 6.0.0 2013-05-23
-    * Ported into pure python.
+	* Ported into pure python.
 	* Remove IP2Location.c library.
 	
 5.0.0	2013-04-16
@@ -24,16 +27,16 @@
 	* Initial release
 	* Support IP2Location IPv6
 	* Support IP2Location DB1 - DB14
-  * New function open()             
+	* New function open()             
 	* New function get_country_short()
-  * New function get_country_long() 
-  * New function get_region()       
-  * New function get_city()         
-  * New function get_isp()          
-  * New function get_latitude()     
-  * New function get_longitude()    
-  * New function get_domain()       
-  * New function get_zipcode()
-  * New function get_timezone()
-  * New function get_netspeed()
-  * New function get_all()       
+	* New function get_country_long() 
+	* New function get_region()       
+	* New function get_city()         
+	* New function get_isp()          
+	* New function get_latitude()     
+	* New function get_longitude()    
+	* New function get_domain()       
+	* New function get_zipcode()
+	* New function get_timezone()
+	* New function get_netspeed()
+	* New function get_all()       
