@@ -18,8 +18,8 @@ For more details, please visit:
 3. Execute python setup.py install
 
 # Testing
-python sample.py
-python test.py
+    python sample.py
+    python test.py
 
 # Sample BIN Databases
 * Download free IP2Location LITE databases at [http://lite.ip2location.com](http://lite.ip2location.com)  
