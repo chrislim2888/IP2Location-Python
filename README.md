@@ -7,7 +7,7 @@ from **IP2Location BIN data** file.
 Supported IPv4 and IPv6 address.
 
 For more details, please visit:
-[http://www.ip2location.com/developers/c](http://www.ip2location.com/developers/c)
+[http://www.ip2location.com/developers/python](http://www.ip2location.com/developers/python)
 
 # Requirements
 1. Python 2.2 and above
