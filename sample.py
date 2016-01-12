@@ -17,7 +17,7 @@
 import os
 import IP2Location
 
-database = IP2Location.IP2Location(os.path.join("data", "DB24.DEMO6.BIN"))
+database = IP2Location.IP2Location(os.path.join("data", "IPV6-COUNTRY.BIN"))
 
 rec = database.get_all("19.5.10.1")
 
@@ -41,3 +41,4 @@ print(rec.mnc)
 print(rec.mobile_brand)
 print(rec.elevation)
 print(rec.usage_type)
+print("\nYou may download the DB24 sample BIN at http://www.ip2location.com/downloads/sample6.bin.db24.zip for full data display.")
