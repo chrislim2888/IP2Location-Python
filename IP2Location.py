@@ -94,8 +94,19 @@ class IP2Location(object):
         if filename:
             self.open(filename)
 
+    def __enter__(self):
+        if not hasattr(self, '_f') or self._f.closed:
+            raise ValueError("Cannot enter context with closed file")
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
     def open(self, filename):
         ''' Opens a database file '''
+        # Ensure old file is closed before oppening a new one
+        self.close()
+
         self._f = open(filename, 'rb')
         self._dbtype = struct.unpack('B', self._f.read(1))[0]
         self._dbcolumn = struct.unpack('B', self._f.read(1))[0]
@@ -106,6 +117,12 @@ class IP2Location(object):
         self._ipv4dbaddr = struct.unpack('<I', self._f.read(4))[0]
         self._ipv6dbcount = struct.unpack('<I', self._f.read(4))[0]
         self._ipv6dbaddr = struct.unpack('<I', self._f.read(4))[0]
+
+    def close(self):
+        if hasattr(self, '_f'):
+            # If there is file close it.
+            self._f.close()
+            del self._f
 
     def get_country_short(self, ip):
         ''' Get country_short '''
