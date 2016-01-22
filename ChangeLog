@@ -1,3 +1,6 @@
+7.0.1 2016-01-22
+	* IP2Location object can be closed and can be used as Context Manager (vstoykov)
+	
 7.0.0 2014-08-07
 	* Support IPv6 records
 
