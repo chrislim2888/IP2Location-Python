@@ -5,6 +5,6 @@ Summary: Python API for IP2Location database
 Home-page: http://www.ip2location.com
 Author: IP2Location
 Author-email: support@ip2location.com
-License: GPL
+License: MIT
 Description: Please refer to LICENSE.txt
 Platform: Mac OS, Linux, Windows
