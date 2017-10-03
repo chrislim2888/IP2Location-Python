@@ -373,6 +373,8 @@ class IP2Location(object):
                 high = self._readi(indexpos + 4)
 
         elif ipv == 6:
+            if self._ipv6dbcount == 0:
+                raise ValueError('Please use IPv6 BIN file for IPv6 Address.')
             a, b = struct.unpack('!QQ', socket.inet_pton(socket.AF_INET6, ip))
             ipno = (a << 64) | b
             off = 12
