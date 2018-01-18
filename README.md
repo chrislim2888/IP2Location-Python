@@ -25,6 +25,10 @@ For more details, please visit:
 * Download free IP2Location LITE databases at [http://lite.ip2location.com](http://lite.ip2location.com)  
 * Download IP2Location sample databases at [http://www.ip2location.com/developers](http://www.ip2location.com/developers)
 
+# IPv4 BIN vs IPv6 BIN
+* Use the IPv4 BIN file if you just need to query IPv4 addresses.
+* Use the IPv6 BIN file if you need to query BOTH IPv4 and IPv6 addresses.
+
 # Support
 Email: support@ip2location.com.  
 URL: [http://www.ip2location.com](http://www.ip2location.com)
