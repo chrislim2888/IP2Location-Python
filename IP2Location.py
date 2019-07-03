@@ -343,18 +343,37 @@ class IP2Location(object):
         ''' Parses address and returns IP version. Raises exception on invalid argument '''
         ipv = 0
         try:
-            socket.inet_pton(socket.AF_INET6, addr)
+            # socket.inet_pton(socket.AF_INET6, addr)
+            a, b = struct.unpack('!QQ', socket.inet_pton(socket.AF_INET6, addr))
+            ipnum = (a << 64) | b
             # Convert ::FFFF:x.y.z.y to IPv4
             if addr.lower().startswith('::ffff:'):
                 try:
                     socket.inet_pton(socket.AF_INET, addr)
                     ipv = 4
                 except:
-                    ipv = 6
+                    # reformat ipv4 address in ipv6 
+                    if ((ipnum >= 281470681743360) and (ipnum <= 281474976710655)):
+                        ipv = 4
+                        ipnum = ipnum - 281470681743360
+                    else:
+                        ipv = 6
             else:
-                ipv = 6
+                #reformat 6to4 address to ipv4 address 2002:: to 2002:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF
+                if ((ipnum >= 42545680458834377588178886921629466624) and (ipnum <= 42550872755692912415807417417958686719)):
+                    ipv = 4
+                    ipnum = ipnum >> 80
+                    ipnum = ipnum % 4294967296
+                #reformat Teredo address to ipv4 address 2001:0000:: to 2001:0000:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:
+                elif ((ipnum >= 42540488161975842760550356425300246528) and (ipnum <= 42540488241204005274814694018844196863)):
+                    ipv = 4
+                    ipnum = ~ ipnum
+                    ipnum = ipnum % 4294967296
+                else:
+                    ipv = 6
         except:
-            socket.inet_pton(socket.AF_INET, addr)
+            ipnum = struct.unpack('!L', socket.inet_pton(socket.AF_INET, addr))[0]
+            # socket.inet_pton(socket.AF_INET, addr)
             ipv = 4
         return ipv
         

@@ -2,7 +2,7 @@
 
 from distutils.core import setup
 setup(name='IP2Location',
-        version='8.0.0',
+        version='8.1.0',
         description='Python API for IP2Location database',
         author='IP2Location',
         author_email='support@ip2location.com',
