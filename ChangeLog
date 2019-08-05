@@ -1,3 +1,6 @@
+8.2.0 2019-08-05
+	* Added fixes for returned results format.
+
 8.1.0 2019-07-03
 	* Added support for 6to4 and Teredo.
 

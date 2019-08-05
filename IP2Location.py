@@ -233,7 +233,7 @@ class IP2Location(object):
         self._f.seek(offset - 1)
         n = struct.unpack('B', self._f.read(1))[0]
         #return u(self._f.read(n))
-        return self._f.read(n).decode('iso-8859-1').encode('utf-8')
+        return u(self._f.read(n).decode('iso-8859-1').encode('utf-8'))
 
     def _readi(self, offset):
         self._f.seek(offset - 1)
