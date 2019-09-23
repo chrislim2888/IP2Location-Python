@@ -64,6 +64,9 @@ class IP2LocationRecord:
     def __repr__(self):
         return repr(self.__dict__)
 
+MAX_IPV4_RANGE = 4294967295
+MAX_IPV6_RANGE = 340282366920938463463374607431768211455
+
 _COUNTRY_POSITION             = (0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2)
 _REGION_POSITION              = (0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3)
 _CITY_POSITION                = (0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4)
@@ -87,10 +90,11 @@ _USAGETYPE_POSITION           = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 class IP2Location(object):
     ''' IP2Location database '''
 
-    def __init__(self, filename=None):
+    def __init__(self, filename=None,mode='FILE_IO'):
         ''' Creates a database object and opens a file if filename is given
             
         '''
+        self.mode = mode
         if filename:
             self.open(filename)
 
@@ -107,7 +111,16 @@ class IP2Location(object):
         # Ensure old file is closed before opening a new one
         self.close()
 
-        self._f = open(filename, 'rb')
+        if (self.mode == 'SHARED_MEMORY'):
+            import mmap
+            db1 = open(filename, 'r+b')
+            self._f = mmap.mmap(db1.fileno(), 0)
+            db1.close()
+            del db1
+        elif (self.mode == 'FILE_IO'):
+            self._f = open(filename, 'rb')
+        else:
+            raise ValueError("Invalid mode. Please enter either FILE_IO or SHARED_MEMORY.")
         self._dbtype = struct.unpack('B', self._f.read(1))[0]
         self._dbcolumn = struct.unpack('B', self._f.read(1))[0]
         self._dbyear = struct.unpack('B', self._f.read(1))[0]
@@ -119,6 +132,7 @@ class IP2Location(object):
         self._ipv6dbaddr = struct.unpack('<I', self._f.read(4))[0]
         self._ipv4indexbaseaddr = struct.unpack('<I', self._f.read(4))[0]
         self._ipv6indexbaseaddr = struct.unpack('<I', self._f.read(4))[0]
+
 
     def close(self):
         if hasattr(self, '_f'):
@@ -232,8 +246,11 @@ class IP2Location(object):
     def _reads(self, offset):
         self._f.seek(offset - 1)
         n = struct.unpack('B', self._f.read(1))[0]
-        #return u(self._f.read(n))
-        return u(self._f.read(n).decode('iso-8859-1').encode('utf-8'))
+        # return u(self._f.read(n))
+        if sys.version < '3':
+            return str(self._f.read(n).decode('iso-8859-1').encode('utf-8'))
+        else :
+            return u(self._f.read(n).decode('iso-8859-1').encode('utf-8'))
 
     def _readi(self, offset):
         self._f.seek(offset - 1)
@@ -266,7 +283,10 @@ class IP2Location(object):
             off = 12
             baseaddr = self._ipv6dbaddr
 
-        rec.ip = self._readips(baseaddr + (mid) * self._dbcolumn * 4, ipv)
+        if self.original_ip != '':
+            rec.ip = self.original_ip
+        else:
+            rec.ip = self._readips(baseaddr + (mid) * self._dbcolumn * 4, ipv)
 
         def calc_off(what, mid):
             return baseaddr + mid * (self._dbcolumn * 4 + off) + off + 4 * (what[self._dbtype]-1)
@@ -375,14 +395,22 @@ class IP2Location(object):
             ipnum = struct.unpack('!L', socket.inet_pton(socket.AF_INET, addr))[0]
             # socket.inet_pton(socket.AF_INET, addr)
             ipv = 4
-        return ipv
+        return ipv, ipnum
         
     def _get_record(self, ip):
 
+        # global original_ip
+        self.original_ip = ip
         low = 0
-        ipv = self._parse_addr(ip) 
+        # ipv = self._parse_addr(ip) 
+        ipv = self._parse_addr(ip)[0] 
+        ipnum = self._parse_addr(ip)[1] 
         if ipv == 4:
-            ipno = struct.unpack('!L', socket.inet_pton(socket.AF_INET, ip))[0]
+            # ipno = struct.unpack('!L', socket.inet_pton(socket.AF_INET, ip))[0]
+            if (ipnum == MAX_IPV4_RANGE):
+                ipno = ipnum - 1
+            else:
+                ipno = ipnum
             off = 0
             baseaddr = self._ipv4dbaddr
             high = self._ipv4dbcount
@@ -394,8 +422,12 @@ class IP2Location(object):
         elif ipv == 6:
             if self._ipv6dbcount == 0:
                 raise ValueError('Please use IPv6 BIN file for IPv6 Address.')
-            a, b = struct.unpack('!QQ', socket.inet_pton(socket.AF_INET6, ip))
-            ipno = (a << 64) | b
+            # a, b = struct.unpack('!QQ', socket.inet_pton(socket.AF_INET6, ip))
+            # ipno = (a << 64) | b
+            if (ipnum == MAX_IPV6_RANGE):
+                ipno = ipnum - 1
+            else:
+                ipno = ipnum
             off = 12
             baseaddr = self._ipv6dbaddr
             high = self._ipv6dbcount

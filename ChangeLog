@@ -1,3 +1,7 @@
+8.3.0 2019-08-05
+	* Added a script to provide IP address lookup directly in shell commandline.
+	* New mode to load and open database BIN file.
+
 8.2.0 2019-08-05
 	* Added fixes for returned results format.
 

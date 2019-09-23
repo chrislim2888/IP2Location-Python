@@ -1,4 +1,4 @@
-# IP2Location 8.2.0
+# IP2Location 8.3.0
 
 
 This is a IP2Location Python library that enables the user to find the country, region or state, city, latitude and longitude, ZIP code, time zone, Internet Service Provider (ISP) or company name, domain name, net speed, area code, weather station code, weather station name, mobile country code (MCC), mobile network code (MNC) and carrier brand, elevation, and usage type by IP address or hostname originates from. The library reads the geo location information
@@ -20,6 +20,7 @@ For more details, please visit:
 # Testing
     python sample.py
     python test.py
+    python lookup.py <ip_address>
 
 # Sample BIN Databases
 * Download free IP2Location LITE databases at [https://lite.ip2location.com](https://lite.ip2location.com)  
