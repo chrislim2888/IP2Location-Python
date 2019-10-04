@@ -279,28 +279,37 @@ class IP2Location(object):
         if ipv == 4:
             off = 0
             baseaddr = self._ipv4dbaddr
+            dbcolumn_width = self._dbcolumn * 4 + 4
         elif ipv == 6:
             off = 12
             baseaddr = self._ipv6dbaddr
+            dbcolumn_width = self._dbcolumn * 4
+
+        def calc_off(what, mid):
+            return baseaddr + mid * (self._dbcolumn * 4 + off) + off + 4 * (what[self._dbtype]-1)
+
+        if (self.mode == 'SHARED_MEMORY'):
+            # We can directly use slice notation to read content from mmap object. https://docs.python.org/3/library/mmap.html?highlight=mmap#module-mmap
+            aaa = self._f[ (calc_off(_COUNTRY_POSITION, mid)) - 1 : (calc_off(_COUNTRY_POSITION, mid)) - 1 + dbcolumn_width]
+        else:
+            self._f.seek((calc_off(_COUNTRY_POSITION, mid)) - 1)
+            aaa = self._f.read(dbcolumn_width)
 
         if self.original_ip != '':
             rec.ip = self.original_ip
         else:
             rec.ip = self._readips(baseaddr + (mid) * self._dbcolumn * 4, ipv)
 
-        def calc_off(what, mid):
-            return baseaddr + mid * (self._dbcolumn * 4 + off) + off + 4 * (what[self._dbtype]-1)
-
         if _COUNTRY_POSITION[self._dbtype] != 0:
-            rec.country_short = self._reads(self._readi(calc_off(_COUNTRY_POSITION, mid)) + 1)
-            rec.country_long =  self._reads(self._readi(calc_off(_COUNTRY_POSITION, mid)) + 4)
+            rec.country_short = self._reads(struct.unpack('<I', aaa[0 : ((_COUNTRY_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+            rec.country_long =  self._reads(struct.unpack('<I', aaa[0 : ((_COUNTRY_POSITION[self._dbtype]-1) * 4)])[0] + 4)
 
         if _REGION_POSITION[self._dbtype] != 0:
-            rec.region = self._reads(self._readi(calc_off(_REGION_POSITION, mid)) + 1)
+            rec.region = self._reads(struct.unpack('<I', aaa[((_REGION_POSITION[self._dbtype]-1) * 4 - 4) : ((_REGION_POSITION[self._dbtype]-1) * 4)])[0] + 1)
         if _CITY_POSITION[self._dbtype] != 0:
-            rec.city = self._reads(self._readi(calc_off(_CITY_POSITION, mid)) + 1)
+            rec.city = self._reads(struct.unpack('<I', aaa[((_CITY_POSITION[self._dbtype]-1) * 4 - 4) : ((_CITY_POSITION[self._dbtype]-1) * 4)])[0] + 1)
         if _ISP_POSITION[self._dbtype] != 0:
-            rec.isp = self._reads(self._readi(calc_off(_ISP_POSITION, mid)) + 1)
+            rec.isp = self._reads(struct.unpack('<I', aaa[((_ISP_POSITION[self._dbtype]-1) * 4 - 4) : ((_ISP_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _LATITUDE_POSITION[self._dbtype] != 0:
             rec.latitude = round(self._readf(calc_off(_LATITUDE_POSITION, mid)), 6)
@@ -308,43 +317,43 @@ class IP2Location(object):
             rec.longitude = round(self._readf(calc_off(_LONGITUDE_POSITION, mid)), 6)
 
         if _DOMAIN_POSITION[self._dbtype] != 0:
-            rec.domain = self._reads(self._readi(calc_off(_DOMAIN_POSITION, mid)) + 1)
+            rec.domain = self._reads(struct.unpack('<I', aaa[((_DOMAIN_POSITION[self._dbtype]-1) * 4 - 4) : ((_DOMAIN_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _ZIPCODE_POSITION[self._dbtype] != 0:
-            rec.zipcode = self._reads(self._readi(calc_off(_ZIPCODE_POSITION, mid)) + 1)
+            rec.zipcode = self._reads(struct.unpack('<I', aaa[((_ZIPCODE_POSITION[self._dbtype]-1) * 4 - 4) : ((_ZIPCODE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _TIMEZONE_POSITION[self._dbtype] != 0:
-            rec.timezone = self._reads(self._readi(calc_off(_TIMEZONE_POSITION, mid)) + 1)
+            rec.timezone = self._reads(struct.unpack('<I', aaa[((_TIMEZONE_POSITION[self._dbtype]-1) * 4 - 4) : ((_TIMEZONE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
                 
         if _NETSPEED_POSITION[self._dbtype] != 0:
-            rec.netspeed = self._reads(self._readi(calc_off(_NETSPEED_POSITION, mid)) + 1)
+            rec.netspeed = self._reads(struct.unpack('<I', aaa[((_NETSPEED_POSITION[self._dbtype]-1) * 4 - 4) : ((_NETSPEED_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _IDDCODE_POSITION[self._dbtype] != 0:
-            rec.idd_code = self._reads(self._readi(calc_off(_IDDCODE_POSITION, mid)) + 1)
+            rec.idd_code = self._reads(struct.unpack('<I', aaa[((_IDDCODE_POSITION[self._dbtype]-1) * 4 - 4) : ((_IDDCODE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _AREACODE_POSITION[self._dbtype] != 0:
-            rec.area_code = self._reads(self._readi(calc_off(_AREACODE_POSITION, mid)) + 1)
+            rec.area_code = self._reads(struct.unpack('<I', aaa[((_AREACODE_POSITION[self._dbtype]-1) * 4 - 4) : ((_AREACODE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _WEATHERSTATIONCODE_POSITION[self._dbtype] != 0:
-            rec.weather_code = self._reads(self._readi(calc_off(_WEATHERSTATIONCODE_POSITION, mid)) + 1)
+            rec.weather_code = self._reads(struct.unpack('<I', aaa[((_WEATHERSTATIONCODE_POSITION[self._dbtype]-1) * 4 - 4) : ((_WEATHERSTATIONCODE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _WEATHERSTATIONNAME_POSITION[self._dbtype] != 0:
-            rec.weather_name = self._reads(self._readi(calc_off(_WEATHERSTATIONNAME_POSITION, mid)) + 1)
+            rec.weather_name = self._reads(struct.unpack('<I', aaa[((_WEATHERSTATIONNAME_POSITION[self._dbtype]-1) * 4 - 4) : ((_WEATHERSTATIONNAME_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _MCC_POSITION[self._dbtype] != 0:
-            rec.mcc = self._reads(self._readi(calc_off(_MCC_POSITION, mid)) + 1)
+            rec.mcc = self._reads(struct.unpack('<I', aaa[((_MCC_POSITION[self._dbtype]-1) * 4 - 4) : ((_MCC_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _MNC_POSITION[self._dbtype] != 0:
-            rec.mnc = self._reads(self._readi(calc_off(_MNC_POSITION, mid)) + 1)
+            rec.mnc = self._reads(struct.unpack('<I', aaa[((_MNC_POSITION[self._dbtype]-1) * 4 - 4) : ((_MNC_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _MOBILEBRAND_POSITION[self._dbtype] != 0:
-            rec.mobile_brand = self._reads(self._readi(calc_off(_MOBILEBRAND_POSITION, mid)) + 1)
+            rec.mobile_brand = self._reads(struct.unpack('<I', aaa[((_MOBILEBRAND_POSITION[self._dbtype]-1) * 4 - 4) : ((_MOBILEBRAND_POSITION[self._dbtype]-1) * 4)])[0] + 1)
                 
         if _ELEVATION_POSITION[self._dbtype] != 0:
-            rec.elevation = self._reads(self._readi(calc_off(_ELEVATION_POSITION, mid)) + 1)
+            rec.elevation = self._reads(struct.unpack('<I', aaa[((_ELEVATION_POSITION[self._dbtype]-1) * 4 - 4) : ((_ELEVATION_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _USAGETYPE_POSITION[self._dbtype] != 0:
-            rec.usage_type = self._reads(self._readi(calc_off(_USAGETYPE_POSITION, mid)) + 1)
+            rec.usage_type = self._reads(struct.unpack('<I', aaa[((_USAGETYPE_POSITION[self._dbtype]-1) * 4 - 4) : ((_USAGETYPE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         return rec
 
