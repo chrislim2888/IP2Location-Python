@@ -290,10 +290,10 @@ class IP2Location(object):
 
         if (self.mode == 'SHARED_MEMORY'):
             # We can directly use slice notation to read content from mmap object. https://docs.python.org/3/library/mmap.html?highlight=mmap#module-mmap
-            aaa = self._f[ (calc_off(_COUNTRY_POSITION, mid)) - 1 : (calc_off(_COUNTRY_POSITION, mid)) - 1 + dbcolumn_width]
+            raw_positions_row = self._f[ (calc_off(_COUNTRY_POSITION, mid)) - 1 : (calc_off(_COUNTRY_POSITION, mid)) - 1 + dbcolumn_width]
         else:
             self._f.seek((calc_off(_COUNTRY_POSITION, mid)) - 1)
-            aaa = self._f.read(dbcolumn_width)
+            raw_positions_row = self._f.read(dbcolumn_width)
 
         if self.original_ip != '':
             rec.ip = self.original_ip
@@ -301,59 +301,59 @@ class IP2Location(object):
             rec.ip = self._readips(baseaddr + (mid) * self._dbcolumn * 4, ipv)
 
         if _COUNTRY_POSITION[self._dbtype] != 0:
-            rec.country_short = self._reads(struct.unpack('<I', aaa[0 : ((_COUNTRY_POSITION[self._dbtype]-1) * 4)])[0] + 1)
-            rec.country_long =  self._reads(struct.unpack('<I', aaa[0 : ((_COUNTRY_POSITION[self._dbtype]-1) * 4)])[0] + 4)
+            rec.country_short = self._reads(struct.unpack('<I', raw_positions_row[0 : ((_COUNTRY_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+            rec.country_long =  self._reads(struct.unpack('<I', raw_positions_row[0 : ((_COUNTRY_POSITION[self._dbtype]-1) * 4)])[0] + 4)
 
         if _REGION_POSITION[self._dbtype] != 0:
-            rec.region = self._reads(struct.unpack('<I', aaa[((_REGION_POSITION[self._dbtype]-1) * 4 - 4) : ((_REGION_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+            rec.region = self._reads(struct.unpack('<I', raw_positions_row[((_REGION_POSITION[self._dbtype]-1) * 4 - 4) : ((_REGION_POSITION[self._dbtype]-1) * 4)])[0] + 1)
         if _CITY_POSITION[self._dbtype] != 0:
-            rec.city = self._reads(struct.unpack('<I', aaa[((_CITY_POSITION[self._dbtype]-1) * 4 - 4) : ((_CITY_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+            rec.city = self._reads(struct.unpack('<I', raw_positions_row[((_CITY_POSITION[self._dbtype]-1) * 4 - 4) : ((_CITY_POSITION[self._dbtype]-1) * 4)])[0] + 1)
         if _ISP_POSITION[self._dbtype] != 0:
-            rec.isp = self._reads(struct.unpack('<I', aaa[((_ISP_POSITION[self._dbtype]-1) * 4 - 4) : ((_ISP_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+            rec.isp = self._reads(struct.unpack('<I', raw_positions_row[((_ISP_POSITION[self._dbtype]-1) * 4 - 4) : ((_ISP_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _LATITUDE_POSITION[self._dbtype] != 0:
-            rec.latitude = round(self._readf(calc_off(_LATITUDE_POSITION, mid)), 6)
+            rec.latitude = round(struct.unpack('<f', raw_positions_row[((_LATITUDE_POSITION[self._dbtype]-1) * 4 - 4) : ((_LATITUDE_POSITION[self._dbtype]-1) * 4)])[0], 6)
         if _LONGITUDE_POSITION[self._dbtype] != 0:
-            rec.longitude = round(self._readf(calc_off(_LONGITUDE_POSITION, mid)), 6)
+            rec.longitude = round(struct.unpack('<f', raw_positions_row[((_LONGITUDE_POSITION[self._dbtype]-1) * 4 - 4) : ((_LONGITUDE_POSITION[self._dbtype]-1) * 4)])[0], 6)
 
         if _DOMAIN_POSITION[self._dbtype] != 0:
-            rec.domain = self._reads(struct.unpack('<I', aaa[((_DOMAIN_POSITION[self._dbtype]-1) * 4 - 4) : ((_DOMAIN_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+            rec.domain = self._reads(struct.unpack('<I', raw_positions_row[((_DOMAIN_POSITION[self._dbtype]-1) * 4 - 4) : ((_DOMAIN_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _ZIPCODE_POSITION[self._dbtype] != 0:
-            rec.zipcode = self._reads(struct.unpack('<I', aaa[((_ZIPCODE_POSITION[self._dbtype]-1) * 4 - 4) : ((_ZIPCODE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+            rec.zipcode = self._reads(struct.unpack('<I', raw_positions_row[((_ZIPCODE_POSITION[self._dbtype]-1) * 4 - 4) : ((_ZIPCODE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _TIMEZONE_POSITION[self._dbtype] != 0:
-            rec.timezone = self._reads(struct.unpack('<I', aaa[((_TIMEZONE_POSITION[self._dbtype]-1) * 4 - 4) : ((_TIMEZONE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+            rec.timezone = self._reads(struct.unpack('<I', raw_positions_row[((_TIMEZONE_POSITION[self._dbtype]-1) * 4 - 4) : ((_TIMEZONE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
                 
         if _NETSPEED_POSITION[self._dbtype] != 0:
-            rec.netspeed = self._reads(struct.unpack('<I', aaa[((_NETSPEED_POSITION[self._dbtype]-1) * 4 - 4) : ((_NETSPEED_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+            rec.netspeed = self._reads(struct.unpack('<I', raw_positions_row[((_NETSPEED_POSITION[self._dbtype]-1) * 4 - 4) : ((_NETSPEED_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _IDDCODE_POSITION[self._dbtype] != 0:
-            rec.idd_code = self._reads(struct.unpack('<I', aaa[((_IDDCODE_POSITION[self._dbtype]-1) * 4 - 4) : ((_IDDCODE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+            rec.idd_code = self._reads(struct.unpack('<I', raw_positions_row[((_IDDCODE_POSITION[self._dbtype]-1) * 4 - 4) : ((_IDDCODE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _AREACODE_POSITION[self._dbtype] != 0:
-            rec.area_code = self._reads(struct.unpack('<I', aaa[((_AREACODE_POSITION[self._dbtype]-1) * 4 - 4) : ((_AREACODE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+            rec.area_code = self._reads(struct.unpack('<I', raw_positions_row[((_AREACODE_POSITION[self._dbtype]-1) * 4 - 4) : ((_AREACODE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _WEATHERSTATIONCODE_POSITION[self._dbtype] != 0:
-            rec.weather_code = self._reads(struct.unpack('<I', aaa[((_WEATHERSTATIONCODE_POSITION[self._dbtype]-1) * 4 - 4) : ((_WEATHERSTATIONCODE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+            rec.weather_code = self._reads(struct.unpack('<I', raw_positions_row[((_WEATHERSTATIONCODE_POSITION[self._dbtype]-1) * 4 - 4) : ((_WEATHERSTATIONCODE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _WEATHERSTATIONNAME_POSITION[self._dbtype] != 0:
-            rec.weather_name = self._reads(struct.unpack('<I', aaa[((_WEATHERSTATIONNAME_POSITION[self._dbtype]-1) * 4 - 4) : ((_WEATHERSTATIONNAME_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+            rec.weather_name = self._reads(struct.unpack('<I', raw_positions_row[((_WEATHERSTATIONNAME_POSITION[self._dbtype]-1) * 4 - 4) : ((_WEATHERSTATIONNAME_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _MCC_POSITION[self._dbtype] != 0:
-            rec.mcc = self._reads(struct.unpack('<I', aaa[((_MCC_POSITION[self._dbtype]-1) * 4 - 4) : ((_MCC_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+            rec.mcc = self._reads(struct.unpack('<I', raw_positions_row[((_MCC_POSITION[self._dbtype]-1) * 4 - 4) : ((_MCC_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _MNC_POSITION[self._dbtype] != 0:
-            rec.mnc = self._reads(struct.unpack('<I', aaa[((_MNC_POSITION[self._dbtype]-1) * 4 - 4) : ((_MNC_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+            rec.mnc = self._reads(struct.unpack('<I', raw_positions_row[((_MNC_POSITION[self._dbtype]-1) * 4 - 4) : ((_MNC_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _MOBILEBRAND_POSITION[self._dbtype] != 0:
-            rec.mobile_brand = self._reads(struct.unpack('<I', aaa[((_MOBILEBRAND_POSITION[self._dbtype]-1) * 4 - 4) : ((_MOBILEBRAND_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+            rec.mobile_brand = self._reads(struct.unpack('<I', raw_positions_row[((_MOBILEBRAND_POSITION[self._dbtype]-1) * 4 - 4) : ((_MOBILEBRAND_POSITION[self._dbtype]-1) * 4)])[0] + 1)
                 
         if _ELEVATION_POSITION[self._dbtype] != 0:
-            rec.elevation = self._reads(struct.unpack('<I', aaa[((_ELEVATION_POSITION[self._dbtype]-1) * 4 - 4) : ((_ELEVATION_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+            rec.elevation = self._reads(struct.unpack('<I', raw_positions_row[((_ELEVATION_POSITION[self._dbtype]-1) * 4 - 4) : ((_ELEVATION_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         if _USAGETYPE_POSITION[self._dbtype] != 0:
-            rec.usage_type = self._reads(struct.unpack('<I', aaa[((_USAGETYPE_POSITION[self._dbtype]-1) * 4 - 4) : ((_USAGETYPE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+            rec.usage_type = self._reads(struct.unpack('<I', raw_positions_row[((_USAGETYPE_POSITION[self._dbtype]-1) * 4 - 4) : ((_USAGETYPE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         return rec
 

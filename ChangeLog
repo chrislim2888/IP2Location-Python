@@ -1,3 +1,6 @@
+8.4.1 2019-10-04
+	* Reduce file I/O to improve query performance.
+
 8.4.0 2019-10-04
 	* Optimized the library performance.
 
