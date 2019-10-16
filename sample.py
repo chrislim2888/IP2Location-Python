@@ -1,4 +1,4 @@
-# Copyright (C) 2005-2016 IP2Location.com
+# Copyright (C) 2005-2019 IP2Location.com
 # All Rights Reserved
 #
 # This library is free software: you can redistribute it and/or
@@ -6,6 +6,12 @@
 
 import os
 import IP2Location
+
+'''
+    Cache the database into memory to accelerate lookup speed.
+    WARNING: Please make sure your system have sufficient RAM to use this feature.
+'''
+# database = IP2Location.IP2Location(os.path.join("data", "IPV6-COUNTRY.BIN"), "SHARED_MEMORY")
 
 database = IP2Location.IP2Location(os.path.join("data", "IPV6-COUNTRY.BIN"))
 
