@@ -240,6 +240,8 @@ class IP2Location(object):
             addr: IPv4 or IPv6 address as a string
      
             Returns IP2LocationRecord or None if address not found in file
+			
+			This function will be obselete in future.
         '''
         return self._get_record(addr)
 
