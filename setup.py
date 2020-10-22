@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
 	name="IP2Location",
-	version="8.4.1", 
+	version="8.5.0", 
 	author="IP2Location",
 	author_email="support@ip2location.com",
 	description="Python API for IP2Location database.",

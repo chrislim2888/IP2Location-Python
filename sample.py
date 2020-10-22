@@ -13,6 +13,7 @@ import IP2Location
 '''
 # database = IP2Location.IP2Location(os.path.join("data", "IPV6-COUNTRY.BIN"), "SHARED_MEMORY")
 
+# Default file I/O lookup
 database = IP2Location.IP2Location(os.path.join("data", "IPV6-COUNTRY.BIN"))
 
 rec = database.get_all("19.5.10.1")
@@ -38,3 +39,11 @@ print(rec.mobile_brand)
 print(rec.elevation)
 print(rec.usage_type)
 print("\nYou may download the DB24 sample BIN at http://www.ip2location.com/downloads/sample6.bin.db24.zip for full data display.")
+
+# Web Service
+ws = IP2Location.IP2LocationWebService("demo","WS24")
+rec = ws.lookup('8.8.8.8', ['continent', 'country', 'region', 'city', 'geotargeting', 'country_groupings', 'time_zone_info'], 'en')
+print (rec)
+print ('\n')
+print ('Credit Remaining: {}\n'.format(ws.getcredit()))
+

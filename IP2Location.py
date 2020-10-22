@@ -1,13 +1,44 @@
 import sys
 import struct
 import socket
+import re
+import json
+# import urllib
 
 if sys.version < '3':
+    import urllib, httplib
+    def urlencode(x):
+        return urllib.urlencode(x)
+    def httprequest(x):
+        try:
+            conn = httplib.HTTPConnection("api.ip2location.com")
+            conn.request("GET", "/v2/?" + x)
+            res = conn.getresponse()
+            # print (res.read())
+            # print (type(res.read()))
+            # return res.read()
+            return json.loads(res.read())
+        except:
+            return None
     def u(x):
         return x.decode('utf-8')
     def b(x):
         return str(x)
 else:
+    import urllib.parse, http.client
+    def urlencode(x):
+        return urllib.parse.urlencode(x)
+    def httprequest(x):
+        try:
+            conn = http.client.HTTPConnection("api.ip2location.com")
+            conn.request("GET", "/v2/?" + x)
+            res = conn.getresponse()
+            # print (res.read())
+            # print (type(res.read()))
+            return json.loads(res.read())
+            # return res.read()
+        except:
+            return None
     def u(x):
         if isinstance(x, bytes):
             return x.decode()
@@ -459,3 +490,34 @@ class IP2Location(object):
                     high = mid - 1
                 else:
                     low = mid + 1
+
+class IP2LocationWebService(object):
+    ''' IP2Location web service '''
+    def __init__(self,apikey,package):
+        if ((re.match(r"^[0-9A-Z]{10}$", apikey) == None) and (apikey != 'demo')):
+            raise ValueError("Please provide a valid IP2Location web service API key.")
+        if (re.match(r"^WS[0-9]+$", package) == None):
+            package = 'WS1'
+        self.apikey = apikey
+        self.package = package
+    
+    def lookup(self,ip,addons=[],language='en'):
+        parameters = urlencode((("key", self.apikey), ("ip", ip), ("package", self.package), ("addon", ','.join(addons)), ("lang", language)))
+        response = httprequest(parameters)
+        if (response == None):
+            return False
+        if ('response' in response):
+            raise IP2LocationAPIError(response['response'])
+        return response
+
+    def getcredit(self):
+        parameters = urlencode((("key", self.apikey), ("check", True)))
+        response = httprequest(parameters)
+        if (response == None):
+            return 0
+        if ('response' in response is False):
+            return 0
+        return response['response']
+  
+class IP2LocationAPIError(Exception):
+    """Raise for IP2Location API Error Message"""

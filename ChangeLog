@@ -1,3 +1,6 @@
+8.5.0 2020-10-21
+	* Support IP2Location Web Service.
+
 8.4.1 2019-10-04
 	* Reduce file I/O to improve query performance.
 

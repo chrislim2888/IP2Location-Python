@@ -1,4 +1,4 @@
-# IP2Location 8.4.1
+# IP2Location 8.5.0
 
 
 This is a IP2Location Python library that enables the user to find the country, region or state, city, latitude and longitude, ZIP code, time zone, Internet Service Provider (ISP) or company name, domain name, net speed, area code, weather station code, weather station name, mobile country code (MCC), mobile network code (MNC) and carrier brand, elevation, and usage type by IP address or hostname originates from. The library reads the geo location information from **IP2Location BIN data** file.
@@ -8,9 +8,31 @@ Supported IPv4 and IPv6 address.
 For more details, please visit:
 [https://www.ip2location.com/developers/python](https://www.ip2location.com/developers/python)
 
-# Method
+# Requirements
 
-Below are the methods supported in this library.
+1. Python 2.2 and above
+
+# Installation
+
+1. Unzip the package.
+2. Execute python setup.py build
+3. Execute python setup.py install
+
+or
+
+To install this module type the following (for PyPI):
+
+```bash
+pip install IP2Location
+```
+
+# Usage
+
+You can check the **sample.py** file to learn more about usage.
+
+## BIN Database
+
+Below is the description of the functions available in the **BIN Database** lookup.
 
 | Method Name       | Description                                                  |
 | ----------------- | ------------------------------------------------------------ |
@@ -37,26 +59,19 @@ Below are the methods supported in this library.
 | get_mobile_brand  | Commercial brand associated with the mobile carrier. Please visit [Mobile Carrier Coverage](https://www.ip2location.com/mobile-carrier-coverage) to view the coverage report. |
 | get_elevation     | Return average height of city above sea level in meters (m). |
 | get_usage_type    | Return the ISP's usage type of IP address. Please see [Usage Type](https://github.com/[chrislim2888/IP2Location-Python](https://github.com/chrislim2888/IP2Location-Python)#usage-type) for details. |
-|                   |                                                              |
 
-# Requirements
+## Web Service
 
-1. Python 2.2 and above
+Below is the description of the functions available in the **Web Service** lookup.
 
-# Installation
-1. Unzip the package.
-2. Execute python setup.py build
-3. Execute python setup.py install
-
-or
-
-To install this module type the following (for PyPI):
-
-```bash
-pip install IP2Location
-```
+| Function Name | Description                                                  |
+| ------------- | ------------------------------------------------------------ |
+| Constructor   | Expect 2 input parameters:<ol><li>IP2Location API Key.</li><li>Package (WS1 - WS24)</li></ol> |
+| lookup        | Return the IP information in array.  <ul><li>country_code</li><li>country_name</li><li>region_name</li><li>city_name</li><li>latitude</li><li>longitude</li><li>zip_code</li><li>time_zone</li><li>isp</li><li>domain</li><li>net_speed</li><li>idd_code</li><li>area_code</li><li>weather_station_code</li><li>weather_station_name</li><li>mcc</li><li>mnc</li><li>mobile_brand</li><li>elevation</li><li>usage_type</li><li>continent<ul><li>name</li><li>code</li><li>hemisphere</li><li>translations</li></ul></li><li>country<ul><li>name</li><li>alpha3_code</li><li>numeric_code</li><li>demonym</li><li>flag</li><li>capital</li><li>total_area</li><li>population</li><li>currency<ul><li>code</li><li>name</li><li>symbol</li></ul></li><li>language<ul><li>code</li><li>name</li></ul></li><li>idd_code</li><li>tld</li><li>translations</li></ul></li><li>region<ul><li>name</li><li>code</li><li>translations</li></ul></li><li>city<ul><li>name</li><li>translations</li></ul></li><li>geotargeting<ul><li>metro</li></ul></li><li>country_groupings</li><li>time_zone_info<ul><li>olson</li><li>current_time</li><li>gmt_offset</li><li>is_dst</li><li>sunrise</li><li>sunset</li></ul></li><ul>                        |
+| get_credit    | Return remaining credit of the web service account.          |
 
 # Testing
+
     python sample.py
     python test.py
     python lookup.py <ip_address>
