@@ -41,7 +41,7 @@ print(rec.usage_type)
 print("\nYou may download the DB24 sample BIN at http://www.ip2location.com/downloads/sample6.bin.db24.zip for full data display.")
 
 # Web Service
-ws = IP2Location.IP2LocationWebService("demo","WS24")
+ws = IP2Location.IP2LocationWebService("demo","WS24",True)
 rec = ws.lookup('8.8.8.8', ['continent', 'country', 'region', 'city', 'geotargeting', 'country_groupings', 'time_zone_info'], 'en')
 print (rec)
 print ('\n')

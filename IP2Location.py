@@ -3,20 +3,20 @@ import struct
 import socket
 import re
 import json
-# import urllib
 
 if sys.version < '3':
     import urllib, httplib
     def urlencode(x):
         return urllib.urlencode(x)
-    def httprequest(x):
+    def httprequest(x, usessl):
         try:
-            conn = httplib.HTTPConnection("api.ip2location.com")
+            # conn = httplib.HTTPConnection("api.ip2location.com")
+            if (usessl is True):
+                conn = httplib.HTTPSConnection("api.ip2location.com")
+            else:
+                conn = httplib.HTTPConnection("api.ip2location.com")
             conn.request("GET", "/v2/?" + x)
             res = conn.getresponse()
-            # print (res.read())
-            # print (type(res.read()))
-            # return res.read()
             return json.loads(res.read())
         except:
             return None
@@ -28,15 +28,16 @@ else:
     import urllib.parse, http.client
     def urlencode(x):
         return urllib.parse.urlencode(x)
-    def httprequest(x):
+    def httprequest(x, usessl):
         try:
-            conn = http.client.HTTPConnection("api.ip2location.com")
+            # conn = http.client.HTTPConnection("api.ip2location.com")
+            if (usessl is True):
+                conn = http.client.HTTPSConnection("api.ip2location.com")
+            else:
+                conn = http.client.HTTPConnection("api.ip2location.com")
             conn.request("GET", "/v2/?" + x)
             res = conn.getresponse()
-            # print (res.read())
-            # print (type(res.read()))
             return json.loads(res.read())
-            # return res.read()
         except:
             return None
     def u(x):
@@ -493,17 +494,19 @@ class IP2Location(object):
 
 class IP2LocationWebService(object):
     ''' IP2Location web service '''
-    def __init__(self,apikey,package):
+    def __init__(self,apikey,package,usessl=True):
         if ((re.match(r"^[0-9A-Z]{10}$", apikey) == None) and (apikey != 'demo')):
             raise ValueError("Please provide a valid IP2Location web service API key.")
         if (re.match(r"^WS[0-9]+$", package) == None):
             package = 'WS1'
         self.apikey = apikey
         self.package = package
+        self.usessl = usessl
     
     def lookup(self,ip,addons=[],language='en'):
+        '''This function will look the given IP address up in IP2Location web service.'''
         parameters = urlencode((("key", self.apikey), ("ip", ip), ("package", self.package), ("addon", ','.join(addons)), ("lang", language)))
-        response = httprequest(parameters)
+        response = httprequest(parameters, self.usessl)
         if (response == None):
             return False
         if ('response' in response):
@@ -511,8 +514,9 @@ class IP2LocationWebService(object):
         return response
 
     def getcredit(self):
+        '''Get the remaing credit in your IP2Location web service account.'''
         parameters = urlencode((("key", self.apikey), ("check", True)))
-        response = httprequest(parameters)
+        response = httprequest(parameters, self.usessl)
         if (response == None):
             return 0
         if ('response' in response is False):
