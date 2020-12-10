@@ -3,6 +3,7 @@ import struct
 import socket
 import re
 import json
+import os
 
 if sys.version < '3':
     import urllib, httplib
@@ -127,6 +128,10 @@ class IP2Location(object):
             
         '''
         self.mode = mode
+        
+        if os.path.isfile(filename) == False:
+            raise ValueError("The database file does not seem to exist.")
+        
         if filename:
             self.open(filename)
 
@@ -272,8 +277,8 @@ class IP2Location(object):
             addr: IPv4 or IPv6 address as a string
      
             Returns IP2LocationRecord or None if address not found in file
-			
-			This function will be obselete in future.
+            
+            This function will be obselete in future.
         '''
         return self._get_record(addr)
 

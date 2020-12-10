@@ -7,10 +7,10 @@
 import os
 import IP2Location
 
-'''
+"""
     Cache the database into memory to accelerate lookup speed.
     WARNING: Please make sure your system have sufficient RAM to use this feature.
-'''
+"""
 # database = IP2Location.IP2Location(os.path.join("data", "IPV6-COUNTRY.BIN"), "SHARED_MEMORY")
 
 # Default file I/O lookup
@@ -42,8 +42,8 @@ print("\nYou may download the DB24 sample BIN at http://www.ip2location.com/down
 
 # Web Service
 ws = IP2Location.IP2LocationWebService("demo","WS24",True)
-rec = ws.lookup('8.8.8.8', ['continent', 'country', 'region', 'city', 'geotargeting', 'country_groupings', 'time_zone_info'], 'en')
+rec = ws.lookup("8.8.8.8", ["continent", "country", "region", "city", "geotargeting", "country_groupings", "time_zone_info"], "en")
 print (rec)
-print ('\n')
-print ('Credit Remaining: {}\n'.format(ws.getcredit()))
+print ("\n")
+print ("Credit Remaining: {}\n".format(ws.getcredit()))
 

@@ -14,6 +14,7 @@ setuptools.setup(
 	py_modules=['IP2Location'],
 	url="https://github.com/ip2location/ip2location-python",
 	packages=setuptools.find_packages(),
+	tests_require=[pytest>=4.6.11],
 	classifiers=[
 		"Development Status :: 5 - Production/Stable",
 		"Intended Audience :: Developers",
