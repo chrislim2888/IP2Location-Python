@@ -20,3 +20,8 @@ def testcountrycode():
 def testgetcredit():
     credit = ws.getcredit()
     assert str(credit).isdigit() == True, "Test failed because it is no a digit value."
+
+def testfunctionexist():
+    functions_list = ['lookup', 'getcredit']
+    for x in range(len(functions_list)): 
+        assert hasattr(ws, functions_list[x]) == True, "Function did not exist."
