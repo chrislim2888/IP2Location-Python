@@ -4,6 +4,8 @@ import socket
 import re
 import json
 import os
+# import ipaddress
+from re import match
 
 if sys.version < '3':
     import urllib, httplib
@@ -67,29 +69,48 @@ if not hasattr(socket, 'inet_pton'):
         return out_addr_p.raw
     socket.inet_pton = inet_pton
 
+def is_ipv4(hostname):
+    pattern = r'^([0-9]{1,3}[.]){3}[0-9]{1,3}$'
+    if match(pattern, hostname) is not None:
+        return 4
+    return False
+
+def is_ipv6(hostname):
+    if ':' in hostname:
+        return 6
+    return False
+
+def is_valid_ip(hostname):
+    if is_ipv4(hostname) is not False or is_ipv6(hostname) is not False:
+        return True
+    else:
+        return False
+
 class IP2LocationRecord:
     ''' IP2Location record with all fields from the database '''
     ip = None
     country_short = None
     country_long = None
-    region = None
-    city = None
-    isp = None
-    latitude = None
-    longitude = None
-    domain = None
-    zipcode = None
-    timezone = None
-    netspeed = None
-    idd_code = None
-    area_code = None
-    weather_code = None
-    weather_name = None
-    mcc = None
-    mnc = None
-    mobile_brand = None
-    elevation = None
-    usage_type = None
+    region = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    city = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    isp = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    latitude = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    longitude = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    domain = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    zipcode = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    timezone = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    netspeed = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    idd_code = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    area_code = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    weather_code = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    weather_name = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    mcc = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    mnc = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    mobile_brand = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    elevation = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    usage_type = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    address_type = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    category = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
 
     def __str__(self):
         return str(self.__dict__)
@@ -100,25 +121,27 @@ class IP2LocationRecord:
 MAX_IPV4_RANGE = 4294967295
 MAX_IPV6_RANGE = 340282366920938463463374607431768211455
 
-_COUNTRY_POSITION             = (0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2)
-_REGION_POSITION              = (0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3)
-_CITY_POSITION                = (0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4)
-_ISP_POSITION                 = (0, 0, 3, 0, 5, 0, 7, 5, 7, 0, 8, 0, 9, 0, 9, 0, 9, 0, 9, 7, 9, 0, 9, 7, 9)
-_LATITUDE_POSITION            = (0, 0, 0, 0, 0, 5, 5, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5)
-_LONGITUDE_POSITION           = (0, 0, 0, 0, 0, 6, 6, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6)
-_DOMAIN_POSITION              = (0, 0, 0, 0, 0, 0, 0, 6, 8, 0, 9, 0, 10,0, 10, 0, 10, 0, 10, 8, 10, 0, 10, 8, 10)
-_ZIPCODE_POSITION             = (0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7, 7, 7, 0, 7, 7, 7, 0, 7, 0, 7, 7, 7, 0, 7)
-_TIMEZONE_POSITION            = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 7, 8, 8, 8, 7, 8, 0, 8, 8, 8, 0, 8)
-_NETSPEED_POSITION            = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 11,0, 11,8, 11, 0, 11, 0, 11, 0, 11)
-_IDDCODE_POSITION             = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 12, 0, 12, 0, 12, 9, 12, 0, 12)
-_AREACODE_POSITION            = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10 ,13 ,0, 13, 0, 13, 10, 13, 0, 13)
-_WEATHERSTATIONCODE_POSITION  = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 14, 0, 14, 0, 14, 0, 14)
-_WEATHERSTATIONNAME_POSITION  = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 15, 0, 15, 0, 15, 0, 15)
-_MCC_POSITION                 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 16, 0, 16, 9, 16)
-_MNC_POSITION                 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10,17, 0, 17, 10, 17)
-_MOBILEBRAND_POSITION         = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11,18, 0, 18, 11, 18)
-_ELEVATION_POSITION           = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 19, 0, 19)
-_USAGETYPE_POSITION           = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 20)
+_COUNTRY_POSITION             = (0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2)
+_REGION_POSITION              = (0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3)
+_CITY_POSITION                = (0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4)
+_LATITUDE_POSITION            = (0, 0, 0, 0, 0, 5, 5, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5)
+_LONGITUDE_POSITION           = (0, 0, 0, 0, 0, 6, 6, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6)
+_ZIPCODE_POSITION             = (0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7, 7, 7, 0, 7, 7, 7, 0, 7, 0, 7, 7, 7, 0, 7, 7)
+_TIMEZONE_POSITION            = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 7, 8, 8, 8, 7, 8, 0, 8, 8, 8, 0, 8, 8)
+_ISP_POSITION                 = (0, 0, 3, 0, 5, 0, 7, 5, 7, 0, 8, 0, 9, 0, 9, 0, 9, 0, 9, 7, 9, 0, 9, 7, 9, 9)
+_DOMAIN_POSITION              = (0, 0, 0, 0, 0, 0, 0, 6, 8, 0, 9, 0, 10, 0, 10, 0, 10, 0, 10, 8, 10, 0, 10, 8, 10, 10)
+_NETSPEED_POSITION            = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 11,0, 11,8, 11, 0, 11, 0, 11, 0, 11, 11)
+_IDDCODE_POSITION             = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 12, 0, 12, 0, 12, 9, 12, 0, 12, 12)
+_AREACODE_POSITION            = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10 ,13 ,0, 13, 0, 13, 10, 13, 0, 13, 13)
+_WEATHERSTATIONCODE_POSITION  = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 14, 0, 14, 0, 14, 0, 14, 14)
+_WEATHERSTATIONNAME_POSITION  = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 15, 0, 15, 0, 15, 0, 15, 15)
+_MCC_POSITION                 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 16, 0, 16, 9, 16, 16)
+_MNC_POSITION                 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10,17, 0, 17, 10, 17, 17)
+_MOBILEBRAND_POSITION         = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11,18, 0, 18, 11, 18, 18)
+_ELEVATION_POSITION           = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 19, 0, 19, 19)
+_USAGETYPE_POSITION           = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 20, 20)
+_ADDRESSTYPE_POSITION         = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21)
+_CATEGORY_POSITION            = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22)
 
 class IP2Location(object):
     ''' IP2Location database '''
@@ -169,6 +192,14 @@ class IP2Location(object):
         self._ipv6dbaddr = struct.unpack('<I', self._f.read(4))[0]
         self._ipv4indexbaseaddr = struct.unpack('<I', self._f.read(4))[0]
         self._ipv6indexbaseaddr = struct.unpack('<I', self._f.read(4))[0]
+        self._productcode = struct.unpack('B', self._f.read(1))[0]
+        self._licensecode = struct.unpack('B', self._f.read(1))[0]
+        self._databasesize = struct.unpack('B', self._f.read(1))[0]
+        if (self._productcode != 1) :
+            if (self._dbyear > 20 and self._productcode != 0) :
+                self._f.close()
+                del self._f
+                raise ValueError("Incorrect IP2Location BIN file format. Please make sure that you are using the latest IP2Location BIN file.")
 
 
     def close(self):
@@ -257,6 +288,14 @@ class IP2Location(object):
         ''' Get usage_type '''
         rec = self.get_all(ip)
         return rec and rec.usage_type
+    def get_address_type(self, ip):
+        ''' Get address_type '''
+        rec = self.get_all(ip)
+        return rec and rec.address_type
+    def get_category(self, ip):
+        ''' Get category '''
+        rec = self.get_all(ip)
+        return rec and rec.category
 
     def get_all(self, addr):
         ''' Get the whole record with all fields read from the file
@@ -352,8 +391,10 @@ class IP2Location(object):
 
         if _LATITUDE_POSITION[self._dbtype] != 0:
             rec.latitude = round(struct.unpack('<f', raw_positions_row[((_LATITUDE_POSITION[self._dbtype]-1) * 4 - 4) : ((_LATITUDE_POSITION[self._dbtype]-1) * 4)])[0], 6)
+            rec.latitude = format(rec.latitude, '.6f')
         if _LONGITUDE_POSITION[self._dbtype] != 0:
             rec.longitude = round(struct.unpack('<f', raw_positions_row[((_LONGITUDE_POSITION[self._dbtype]-1) * 4 - 4) : ((_LONGITUDE_POSITION[self._dbtype]-1) * 4)])[0], 6)
+            rec.longitude = format(rec.longitude, '.6f')
 
         if _DOMAIN_POSITION[self._dbtype] != 0:
             rec.domain = self._reads(struct.unpack('<I', raw_positions_row[((_DOMAIN_POSITION[self._dbtype]-1) * 4 - 4) : ((_DOMAIN_POSITION[self._dbtype]-1) * 4)])[0] + 1)
@@ -394,6 +435,12 @@ class IP2Location(object):
         if _USAGETYPE_POSITION[self._dbtype] != 0:
             rec.usage_type = self._reads(struct.unpack('<I', raw_positions_row[((_USAGETYPE_POSITION[self._dbtype]-1) * 4 - 4) : ((_USAGETYPE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
+        if _ADDRESSTYPE_POSITION[self._dbtype] != 0:
+            rec.address_type = self._reads(struct.unpack('<I', raw_positions_row[((_ADDRESSTYPE_POSITION[self._dbtype]-1) * 4 - 4) : ((_ADDRESSTYPE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+
+        if _CATEGORY_POSITION[self._dbtype] != 0:
+            rec.category = self._reads(struct.unpack('<I', raw_positions_row[((_CATEGORY_POSITION[self._dbtype]-1) * 4 - 4) : ((_CATEGORY_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+
         return rec
 
     def __iter__(self):
@@ -407,11 +454,26 @@ class IP2Location(object):
             yield self._read_record(low, 6)
             low += 1
 
+    def _ip2no(self, addr):
+        no = 0
+        block = addr.split('.')
+        no = block[3]
+        no = no + block[2] * 256
+        no = no + block[1] * 256 * 256
+        no = no + block[0] * 256 * 256 * 256
+        return int(no)
+
     def _parse_addr(self, addr): 
         ''' Parses address and returns IP version. Raises exception on invalid argument '''
         ipv = 0
-        try:
-            # socket.inet_pton(socket.AF_INET6, addr)
+        ipnum = -1
+        if is_ipv4(addr) == 4 and '256' not in addr:
+            ipv = 4
+            # ipnum = int(ipaddress.IPv4Address(addr))
+            ipnum = struct.unpack('!L', socket.inet_pton(socket.AF_INET, addr))[0]
+        elif is_ipv6(addr) == 6:
+            ipv = 6
+            # ipnum = int(int(ipaddress.IPv6Address(addr)).__str__())
             a, b = struct.unpack('!QQ', socket.inet_pton(socket.AF_INET6, addr))
             ipnum = (a << 64) | b
             # Convert ::FFFF:x.y.z.y to IPv4
@@ -439,63 +501,109 @@ class IP2Location(object):
                     ipnum = ipnum % 4294967296
                 else:
                     ipv = 6
-        except:
-            ipnum = struct.unpack('!L', socket.inet_pton(socket.AF_INET, addr))[0]
-            # socket.inet_pton(socket.AF_INET, addr)
-            ipv = 4
         return ipv, ipnum
         
     def _get_record(self, ip):
-
         # global original_ip
         self.original_ip = ip
         low = 0
-        # ipv = self._parse_addr(ip) 
-        ipv = self._parse_addr(ip)[0] 
-        ipnum = self._parse_addr(ip)[1] 
-        if ipv == 4:
-            # ipno = struct.unpack('!L', socket.inet_pton(socket.AF_INET, ip))[0]
-            if (ipnum == MAX_IPV4_RANGE):
-                ipno = ipnum - 1
-            else:
-                ipno = ipnum
-            off = 0
-            baseaddr = self._ipv4dbaddr
-            high = self._ipv4dbcount
-            if self._ipv4indexbaseaddr > 0:
-                indexpos = ((ipno >> 16) << 3) + self._ipv4indexbaseaddr
-                low = self._readi(indexpos)
-                high = self._readi(indexpos + 4)
-
-        elif ipv == 6:
-            if self._ipv6dbcount == 0:
-                raise ValueError('Please use IPv6 BIN file for IPv6 Address.')
-            # a, b = struct.unpack('!QQ', socket.inet_pton(socket.AF_INET6, ip))
-            # ipno = (a << 64) | b
-            if (ipnum == MAX_IPV6_RANGE):
-                ipno = ipnum - 1
-            else:
-                ipno = ipnum
-            off = 12
-            baseaddr = self._ipv6dbaddr
-            high = self._ipv6dbcount
-            if self._ipv6indexbaseaddr > 0:
-                indexpos = ((ipno >> 112) << 3) + self._ipv6indexbaseaddr
-                low = self._readi(indexpos)
-                high = self._readi(indexpos + 4)
-
-        while low <= high:
-            mid = int((low + high) / 2)
-            ipfrom = self._readip(baseaddr + (mid) * (self._dbcolumn * 4 + off), ipv)
-            ipto = self._readip(baseaddr + (mid + 1) * (self._dbcolumn * 4 + off), ipv)
-
-            if ipfrom <= ipno < ipto:
-                return self._read_record(mid, ipv)
-            else:
-                if ipno < ipfrom:
-                    high = mid - 1
+        # ipv = self._parse_addr(ip)
+        # ipv = self._parse_addr(ip)[0]
+        # ipnum = self._parse_addr(ip)[1]
+        ipv, ipnum = self._parse_addr(ip)
+        if ipv == 0:
+            rec = IP2LocationRecord()
+            rec.country_short = "INVALID IP ADDRESS"
+            rec.country_long = "INVALID IP ADDRESS"
+            rec.region = "INVALID IP ADDRESS"
+            rec.city = "INVALID IP ADDRESS"
+            rec.isp = "INVALID IP ADDRESS"
+            rec.latitude = "INVALID IP ADDRESS"
+            rec.longitude = "INVALID IP ADDRESS"
+            rec.domain = "INVALID IP ADDRESS"
+            rec.zipcode = "INVALID IP ADDRESS"
+            rec.timezone = "INVALID IP ADDRESS"
+            rec.netspeed = "INVALID IP ADDRESS"
+            rec.idd_code = "INVALID IP ADDRESS"
+            rec.area_code = "INVALID IP ADDRESS"
+            rec.weather_code = "INVALID IP ADDRESS"
+            rec.weather_name = "INVALID IP ADDRESS"
+            rec.mcc = "INVALID IP ADDRESS"
+            rec.mnc = "INVALID IP ADDRESS"
+            rec.mobile_brand = "INVALID IP ADDRESS"
+            rec.elevation = "INVALID IP ADDRESS"
+            rec.usage_type = "INVALID IP ADDRESS"
+            rec.address_type = "INVALID IP ADDRESS"
+            rec.category = "INVALID IP ADDRESS"
+            return rec
+        else:
+            if ipv == 4:
+                # ipno = struct.unpack('!L', socket.inet_pton(socket.AF_INET, ip))[0]
+                if (ipnum == MAX_IPV4_RANGE):
+                    ipno = ipnum - 1
                 else:
-                    low = mid + 1
+                    ipno = ipnum
+                off = 0
+                baseaddr = self._ipv4dbaddr
+                high = self._ipv4dbcount
+                if self._ipv4indexbaseaddr > 0:
+                    indexpos = ((ipno >> 16) << 3) + self._ipv4indexbaseaddr
+                    low = self._readi(indexpos)
+                    high = self._readi(indexpos + 4)
+
+            elif ipv == 6:
+                if self._ipv6dbcount == 0:
+                    # raise ValueError('Please use IPv6 BIN file for IPv6 Address.')
+                    rec = IP2LocationRecord()
+                    rec.country_short = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.country_long = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.region = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.city = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.isp = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.latitude = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.longitude = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.domain = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.zipcode = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.timezone = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.netspeed = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.idd_code = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.area_code = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.weather_code = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.weather_name = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.mcc = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.mnc = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.mobile_brand = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.elevation = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.usage_type = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.address_type = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    rec.category = "IPV6 ADDRESS MISSING IN IPV4 BIN"
+                    return rec
+                # a, b = struct.unpack('!QQ', socket.inet_pton(socket.AF_INET6, ip))
+                # ipno = (a << 64) | b
+                if (ipnum == MAX_IPV6_RANGE):
+                    ipno = ipnum - 1
+                else:
+                    ipno = ipnum
+                off = 12
+                baseaddr = self._ipv6dbaddr
+                high = self._ipv6dbcount
+                if self._ipv6indexbaseaddr > 0:
+                    indexpos = ((ipno >> 112) << 3) + self._ipv6indexbaseaddr
+                    low = self._readi(indexpos)
+                    high = self._readi(indexpos + 4)
+
+            while low <= high:
+                mid = int((low + high) / 2)
+                ipfrom = self._readip(baseaddr + (mid) * (self._dbcolumn * 4 + off), ipv)
+                ipto = self._readip(baseaddr + (mid + 1) * (self._dbcolumn * 4 + off), ipv)
+
+                if ipfrom <= ipno < ipto:
+                    return self._read_record(mid, ipv)
+                else:
+                    if ipno < ipfrom:
+                        high = mid - 1
+                    else:
+                        low = mid + 1
 
 class IP2LocationWebService(object):
     ''' IP2Location web service '''

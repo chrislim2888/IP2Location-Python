@@ -1,7 +1,7 @@
-# IP2Location 8.5.1
+# IP2Location 8.6.0
 
 
-This is a IP2Location Python library that enables the user to find the country, region or state, city, latitude and longitude, ZIP code, time zone, Internet Service Provider (ISP) or company name, domain name, net speed, area code, weather station code, weather station name, mobile country code (MCC), mobile network code (MNC) and carrier brand, elevation, and usage type by IP address or hostname originates from. The library reads the geo location information from **IP2Location BIN data** file.
+This is a IP2Location Python library that enables the user to find the country, region or state, city, latitude and longitude, ZIP code, time zone, Internet Service Provider (ISP) or company name, domain name, net speed, area code, weather station code, weather station name, mobile country code (MCC), mobile network code (MNC) and carrier brand, elevation, usage type, address type and IAB category by IP address or hostname originates from. The library reads the geo location information from **IP2Location BIN data** file.
 
 Supported IPv4 and IPv6 address.
 
@@ -59,6 +59,8 @@ Below is the description of the functions available in the **BIN Database** look
 | get_mobile_brand  | Commercial brand associated with the mobile carrier. Please visit [Mobile Carrier Coverage](https://www.ip2location.com/mobile-carrier-coverage) to view the coverage report. |
 | get_elevation     | Return average height of city above sea level in meters (m). |
 | get_usage_type    | Return the ISP's usage type of IP address. Please see [Usage Type](https://github.com/[chrislim2888/IP2Location-Python](https://github.com/chrislim2888/IP2Location-Python)#usage-type) for details. |
+| get_address_type  | Return the IP address type (A-Anycast, B-Broadcast, M-Multicast & U-Unicast) of IP address or domain name. |
+| get_category      | Return the IAB content taxonomy category of IP address or domain name. You can get a full list of IAB content taxonomy category from [here](https://www.ip2location.com/free/iab-categories). |
 
 ## Web Service
 
