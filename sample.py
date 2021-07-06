@@ -40,10 +40,10 @@ print("Elevation             : " + rec.elevation)
 print("Usage Type            : " + rec.usage_type)
 print("Address Type          : " + rec.address_type)
 print("Category              : " + rec.category)
-print("\nYou may download the DB24 sample BIN at http://www.ip2location.com/downloads/sample6.bin.db24.zip for full data display.")
+print("\nYou may download the DB25 sample BIN at http://www.ip2location.com/downloads/sample6.bin.db25.zip for full data display.")
 
 # Web Service
-ws = IP2Location.IP2LocationWebService("demo","WS24",True)
+ws = IP2Location.IP2LocationWebService("demo","WS25",True)
 rec = ws.lookup("8.8.8.8", ["continent", "country", "region", "city", "geotargeting", "country_groupings", "time_zone_info"], "en")
 print (rec)
 print ("\n")

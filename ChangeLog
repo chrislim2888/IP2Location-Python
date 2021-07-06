@@ -1,3 +1,11 @@
+8.6.1 2021-07-06
+	* Minor fix
+
+8.6.0 2021-06-03
+	* Support IP2Location DB25.
+	* New function get_address_type().
+	* New function get_category().
+
 8.5.1 2020-10-21
 	* Support SSL option in Web Service calling.
 

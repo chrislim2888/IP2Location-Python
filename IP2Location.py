@@ -136,8 +136,8 @@ _AREACODE_POSITION            = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10
 _WEATHERSTATIONCODE_POSITION  = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 14, 0, 14, 0, 14, 0, 14, 14)
 _WEATHERSTATIONNAME_POSITION  = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 15, 0, 15, 0, 15, 0, 15, 15)
 _MCC_POSITION                 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 16, 0, 16, 9, 16, 16)
-_MNC_POSITION                 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10,17, 0, 17, 10, 17, 17)
-_MOBILEBRAND_POSITION         = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11,18, 0, 18, 11, 18, 18)
+_MNC_POSITION                 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 17, 0, 17, 10, 17, 17)
+_MOBILEBRAND_POSITION         = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 18, 0, 18, 11, 18, 18)
 _ELEVATION_POSITION           = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 19, 0, 19, 19)
 _USAGETYPE_POSITION           = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 20, 20)
 _ADDRESSTYPE_POSITION         = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21)
@@ -152,8 +152,9 @@ class IP2Location(object):
         '''
         self.mode = mode
         
-        if os.path.isfile(filename) == False:
-            raise ValueError("The database file does not seem to exist.")
+        if filename is not None:
+            if os.path.isfile(filename) == False:
+                raise ValueError("The database file does not seem to exist.")
         
         if filename:
             self.open(filename)
@@ -332,7 +333,8 @@ class IP2Location(object):
 
     def _readi(self, offset):
         self._f.seek(offset - 1)
-        return struct.unpack('<I', self._f.read(4))[0]
+        # return struct.unpack('<I', self._f.read(4))[0]
+        return struct.unpack('<L', self._f.read(4))[0]
 
     def _readf(self, offset):
         self._f.seek(offset - 1)
@@ -468,39 +470,47 @@ class IP2Location(object):
         ipv = 0
         ipnum = -1
         if is_ipv4(addr) == 4 and '256' not in addr:
-            ipv = 4
-            # ipnum = int(ipaddress.IPv4Address(addr))
-            ipnum = struct.unpack('!L', socket.inet_pton(socket.AF_INET, addr))[0]
+            try:
+                # ipnum = int(ipaddress.IPv4Address(addr))
+                ipnum = struct.unpack('!L', socket.inet_pton(socket.AF_INET, addr))[0]
+                ipv = 4
+            except (socket.error, OSError, ValueError):
+                ipv = 0
+                ipnum = -1
         elif is_ipv6(addr) == 6:
-            ipv = 6
-            # ipnum = int(int(ipaddress.IPv6Address(addr)).__str__())
-            a, b = struct.unpack('!QQ', socket.inet_pton(socket.AF_INET6, addr))
-            ipnum = (a << 64) | b
-            # Convert ::FFFF:x.y.z.y to IPv4
-            if addr.lower().startswith('::ffff:'):
-                try:
-                    socket.inet_pton(socket.AF_INET, addr)
-                    ipv = 4
-                except:
-                    # reformat ipv4 address in ipv6 
-                    if ((ipnum >= 281470681743360) and (ipnum <= 281474976710655)):
+            try:
+                ipv = 6
+                # ipnum = int(int(ipaddress.IPv6Address(addr)).__str__())
+                a, b = struct.unpack('!QQ', socket.inet_pton(socket.AF_INET6, addr))
+                ipnum = (a << 64) | b
+                # Convert ::FFFF:x.y.z.y to IPv4
+                if addr.lower().startswith('::ffff:'):
+                    try:
+                        socket.inet_pton(socket.AF_INET, addr)
                         ipv = 4
-                        ipnum = ipnum - 281470681743360
+                    except:
+                        # reformat ipv4 address in ipv6 
+                        if ((ipnum >= 281470681743360) and (ipnum <= 281474976710655)):
+                            ipv = 4
+                            ipnum = ipnum - 281470681743360
+                        else:
+                            ipv = 6
+                else:
+                    #reformat 6to4 address to ipv4 address 2002:: to 2002:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF
+                    if ((ipnum >= 42545680458834377588178886921629466624) and (ipnum <= 42550872755692912415807417417958686719)):
+                        ipv = 4
+                        ipnum = ipnum >> 80
+                        ipnum = ipnum % 4294967296
+                    #reformat Teredo address to ipv4 address 2001:0000:: to 2001:0000:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:
+                    elif ((ipnum >= 42540488161975842760550356425300246528) and (ipnum <= 42540488241204005274814694018844196863)):
+                        ipv = 4
+                        ipnum = ~ ipnum
+                        ipnum = ipnum % 4294967296
                     else:
                         ipv = 6
-            else:
-                #reformat 6to4 address to ipv4 address 2002:: to 2002:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF
-                if ((ipnum >= 42545680458834377588178886921629466624) and (ipnum <= 42550872755692912415807417417958686719)):
-                    ipv = 4
-                    ipnum = ipnum >> 80
-                    ipnum = ipnum % 4294967296
-                #reformat Teredo address to ipv4 address 2001:0000:: to 2001:0000:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:
-                elif ((ipnum >= 42540488161975842760550356425300246528) and (ipnum <= 42540488241204005274814694018844196863)):
-                    ipv = 4
-                    ipnum = ~ ipnum
-                    ipnum = ipnum % 4294967296
-                else:
-                    ipv = 6
+            except (socket.error, OSError, ValueError):
+                ipv = 0
+                ipnum = -1
         return ipv, ipnum
         
     def _get_record(self, ip):
@@ -594,6 +604,8 @@ class IP2Location(object):
 
             while low <= high:
                 mid = int((low + high) / 2)
+                print ("baseaddr: " + str(baseaddr))
+                print ("_dbcolumn: " + str(self._dbcolumn))
                 ipfrom = self._readip(baseaddr + (mid) * (self._dbcolumn * 4 + off), ipv)
                 ipto = self._readip(baseaddr + (mid + 1) * (self._dbcolumn * 4 + off), ipv)
 
