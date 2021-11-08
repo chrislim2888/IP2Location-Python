@@ -483,6 +483,7 @@ class IP2Location(object):
                 # ipnum = int(int(ipaddress.IPv6Address(addr)).__str__())
                 a, b = struct.unpack('!QQ', socket.inet_pton(socket.AF_INET6, addr))
                 ipnum = (a << 64) | b
+                '''
                 # Convert ::FFFF:x.y.z.y to IPv4
                 if addr.lower().startswith('::ffff:'):
                     try:
@@ -508,6 +509,23 @@ class IP2Location(object):
                         ipnum = ipnum % 4294967296
                     else:
                         ipv = 6
+                '''
+                #reformat 6to4 address to ipv4 address 2002:: to 2002:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF
+                if ((ipnum >= 42545680458834377588178886921629466624) and (ipnum <= 42550872755692912415807417417958686719)):
+                    ipv = 4
+                    ipnum = ipnum >> 80
+                    ipnum = ipnum % 4294967296
+                #reformat Teredo address to ipv4 address 2001:0000:: to 2001:0000:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:
+                elif ((ipnum >= 42540488161975842760550356425300246528) and (ipnum <= 42540488241204005274814694018844196863)):
+                    ipv = 4
+                    ipnum = ~ ipnum
+                    ipnum = ipnum % 4294967296
+                # reformat ipv4 address in ipv6 
+                elif ((ipnum >= 281470681743360) and (ipnum <= 281474976710655)):
+                    ipv = 4
+                    ipnum = ipnum - 281470681743360
+                else:
+                    ipv = 6
             except (socket.error, OSError, ValueError):
                 ipv = 0
                 ipnum = -1
@@ -548,6 +566,7 @@ class IP2Location(object):
             return rec
         else:
             if ipv == 4:
+                print("4")
                 # ipno = struct.unpack('!L', socket.inet_pton(socket.AF_INET, ip))[0]
                 if (ipnum == MAX_IPV4_RANGE):
                     ipno = ipnum - 1
@@ -562,6 +581,7 @@ class IP2Location(object):
                     high = self._readi(indexpos + 4)
 
             elif ipv == 6:
+                print("64")
                 if self._ipv6dbcount == 0:
                     # raise ValueError('Please use IPv6 BIN file for IPv6 Address.')
                     rec = IP2LocationRecord()
