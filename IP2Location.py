@@ -566,7 +566,6 @@ class IP2Location(object):
             return rec
         else:
             if ipv == 4:
-                print("4")
                 # ipno = struct.unpack('!L', socket.inet_pton(socket.AF_INET, ip))[0]
                 if (ipnum == MAX_IPV4_RANGE):
                     ipno = ipnum - 1
@@ -581,7 +580,6 @@ class IP2Location(object):
                     high = self._readi(indexpos + 4)
 
             elif ipv == 6:
-                print("64")
                 if self._ipv6dbcount == 0:
                     # raise ValueError('Please use IPv6 BIN file for IPv6 Address.')
                     rec = IP2LocationRecord()
