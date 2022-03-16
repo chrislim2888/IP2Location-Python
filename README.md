@@ -1,4 +1,4 @@
-# IP2Location 8.6.4
+# IP2Location 8.7.0
 
 
 This is a IP2Location Python library that enables the user to find the country, region or state, city, latitude and longitude, ZIP code, time zone, Internet Service Provider (ISP) or company name, domain name, net speed, area code, weather station code, weather station name, mobile country code (MCC), mobile network code (MNC) and carrier brand, elevation, usage type, address type and IAB category by IP address or hostname originates from. The library reads the geo location information from **IP2Location BIN data** file.
@@ -10,7 +10,8 @@ For more details, please visit:
 
 # Requirements
 
-1. Python 2.2 and above
+1. Python 2.2 and above for version below than 8.7.0.
+2. Python 3.4 and above for version 8.7.0 and above.
 
 # Installation
 
@@ -71,6 +72,25 @@ Below is the description of the functions available in the **Web Service** looku
 | Constructor   | Expect 3 input parameters:<ol><li>IP2Location API Key.</li><li>Package (WS1 - WS25)</li><li>Use HTTPS or HTTP</li></ol> |
 | lookup        | Return the IP information in array.  <ul><li>country_code</li><li>country_name</li><li>region_name</li><li>city_name</li><li>latitude</li><li>longitude</li><li>zip_code</li><li>time_zone</li><li>isp</li><li>domain</li><li>net_speed</li><li>idd_code</li><li>area_code</li><li>weather_station_code</li><li>weather_station_name</li><li>mcc</li><li>mnc</li><li>mobile_brand</li><li>elevation</li><li>usage_type</li><li>address_type</li><li>category</li><li>category_name</li><li>continent<ul><li>name</li><li>code</li><li>hemisphere</li><li>translations</li></ul></li><li>country<ul><li>name</li><li>alpha3_code</li><li>numeric_code</li><li>demonym</li><li>flag</li><li>capital</li><li>total_area</li><li>population</li><li>currency<ul><li>code</li><li>name</li><li>symbol</li></ul></li><li>language<ul><li>code</li><li>name</li></ul></li><li>idd_code</li><li>tld</li><li>translations</li></ul></li><li>region<ul><li>name</li><li>code</li><li>translations</li></ul></li><li>city<ul><li>name</li><li>translations</li></ul></li><li>geotargeting<ul><li>metro</li></ul></li><li>country_groupings</li><li>time_zone_info<ul><li>olson</li><li>current_time</li><li>gmt_offset</li><li>is_dst</li><li>sunrise</li><li>sunset</li></ul></li><ul> |
 | get_credit    | Return remaining credit of the web service account.          |
+
+### IP Tools
+
+Below is the description of the functions available in the **IP Tools** class.
+
+| Function Name   | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| is_ipv4         | Return either **true** or **false**. Verify if a string is a valid IPv4 address. |
+| is_ipv6         | Return either **true** or **false**. Verify if a string is a valid IPv6 address. |
+| ipv4_to_decimal | Translate IPv4 address from dotted-decimal address to decimal format. |
+| decimal_to_ipv4 | Translate IPv4 address from decimal number to dotted-decimal address. |
+| ipv6_to_decimal | Translate IPv6 address from hexadecimal address to decimal format. |
+| decimal_to_ipv6 | Translate IPv6 address from decimal number into hexadecimal address. |
+| ipv4_to_cidr    | Convert IPv4 range into a list of IPv4 CIDR notation.        |
+| cidr_to_ipv4    | Convert IPv4 CIDR notation into a list of IPv4 addresses.    |
+| ipv6_to_cidr    | Convert IPv6 range into a list of IPv6 CIDR notation.        |
+| cidr_to_ipv6    | Convert IPv6 CIDR notation into a list of IPv6 addresses.    |
+| compressed_ipv6 | Compress a IPv6 to shorten the length.                       |
+| expand_ipv6     | Expand a shorten IPv6 to full length.                        |
 
 # Testing
 

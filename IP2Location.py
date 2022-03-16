@@ -4,7 +4,8 @@ import socket
 import re
 import json
 import os
-# import ipaddress
+import ipaddress
+import binascii
 from re import match
 
 MAX_IPV4_RANGE = 4294967295
@@ -95,6 +96,10 @@ if not hasattr(socket, 'inet_pton'):
     socket.inet_pton = inet_pton
 
 def is_ipv4(hostname):
+    ip_parts = hostname.split('.')
+    for i in range(0,len(ip_parts)):
+        if int(ip_parts[i]) > 255:
+            return False
     pattern = r'^([0-9]{1,3}[.]){3}[0-9]{1,3}$'
     if match(pattern, hostname) is not None:
         return 4
@@ -650,7 +655,8 @@ class IP2LocationWebService(object):
         response = httprequest(parameters, self.usessl)
         if (response == None):
             return False
-        if ('response' in response):
+        # if ('response' in response):
+        if (('response' in response) and (response['response'] != 'OK')):
             raise IP2LocationAPIError(response['response'])
         return response
 
@@ -666,3 +672,99 @@ class IP2LocationWebService(object):
   
 class IP2LocationAPIError(Exception):
     """Raise for IP2Location API Error Message"""
+
+class AddressValueError(ValueError):
+    """A Value Error related to the address."""
+
+class IP2LocationIPTools(object):
+
+    def is_ipv4(self, ip):
+        ip_parts = ip.split('.')
+        for i in range(0,len(ip_parts)):
+            if int(ip_parts[i]) > 255:
+                return False
+        pattern = r'^([0-9]{1,3}[.]){3}[0-9]{1,3}$'
+        if match(pattern, ip) is not None:
+            return True
+        return False
+
+    def is_ipv6(self, ip):
+        try:
+            socket.inet_pton(socket.AF_INET6, ip)
+        except socket.error:  # not a valid address
+            return False
+        return True
+    
+    def ipv4_to_decimal(self, ip):
+        try:
+            ipnum = struct.unpack('!L', socket.inet_pton(socket.AF_INET, ip))[0]
+        except (socket.error, OSError, ValueError):
+            # ipnum = -1
+            return
+        return ipnum
+    
+    def decimal_to_ipv4(self, decimal):
+        if (int(decimal) > 4294967295):
+            return
+        else:
+            return (socket.inet_ntoa(struct.pack('!I', int(decimal))))
+    
+    def ipv6_to_decimal(self, ip):
+        return(int(ipaddress.ip_address(u(ip))))
+    
+    def decimal_to_ipv6(self, decimal):
+        result = ipaddress.IPv6Address(int(decimal))
+        if (result.ipv4_mapped != None):
+            return('::ffff:' + str(result.ipv4_mapped))
+        else:
+            return str(result)
+    
+    def ipv4_to_cidr(self, from_ip, to_ip):
+        startip = ipaddress.IPv4Address(u(from_ip))
+        endip = ipaddress.IPv4Address(u(to_ip))
+        ar = [ipaddr for ipaddr in ipaddress.summarize_address_range(startip, endip)]
+        ar1 = []
+        for i in range(len(ar)):
+            ar1.append(str(ar[i]))
+        return (ar1)
+    
+    def ipv6_to_cidr(self, from_ip, to_ip):
+        startip = ipaddress.IPv6Address(u(from_ip))
+        endip = ipaddress.IPv6Address(u(to_ip))
+        ar = [ipaddr for ipaddr in ipaddress.summarize_address_range(startip, endip)]
+        ar1 = []
+        for i in range(len(ar)):
+            ar1.append(str(ar[i]))
+        return (ar1)
+    
+    def cidr_to_ipv4(self, cidr):
+        net=ipaddress.ip_network(u(cidr))
+        return({"ip_start": str(net[0]), "ip_end": str(net[-1])})
+    
+    def cidr_to_ipv6(self, cidr):
+        parts = cidr.split('/')
+        hexstartaddress = binascii.hexlify(socket.inet_pton(socket.AF_INET6, parts[0]))
+        if (len(hexstartaddress) < 16):
+            hexstartaddress = hexstartaddress.zfill(16-hexstartaddress.len())
+        bits = 128 - int(parts[1])
+        hexlastaddress = hexstartaddress
+        pos = 31
+        while (bits > 0):
+            int_value = int(hexlastaddress[pos:pos+1], 16)
+            # new = binascii.hexlify((int_value | (pow(2, min(4, bits)) - 1)).to_bytes(1, 'big'))
+            new = binascii.hexlify((int_value | (pow(2, min(4, bits)) - 1)).to_bytes(1, 'little'))[1:]
+            hexlastaddresslist = list(u(hexlastaddress))
+            hexlastaddresslist[pos] = u(new)
+            string_hexlastaddresslist = [str(int) for int in hexlastaddresslist] 
+            hexlastaddress = ''.join(string_hexlastaddresslist)
+            bits = bits - 4
+            pos = pos - 1
+        binlastaddress = binascii.unhexlify(b(hexlastaddress))
+        return({"ip_start": self.expand_ipv6(parts[0]), "ip_end": self.expand_ipv6(socket.inet_ntop(socket.AF_INET6, binlastaddress))})
+    
+    def compressed_ipv6(self, ip):
+        return ((ipaddress.IPv6Address(u(ip)).compressed))
+    
+    def expand_ipv6(self, ip):
+        return ((ipaddress.IPv6Address(u(ip)).exploded))
+

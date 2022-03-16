@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
 	name="IP2Location",
-	version="8.6.4", 
+	version="8.7.0", 
 	author="IP2Location",
 	author_email="support@ip2location.com",
 	description="This is an IP geolocation library that enables the user to find the country, region, city, latitude and longitude, ZIP code, time zone, ISP, domain name, area code, weather info, mobile info, elevation, usage type, address type and IAB category from an IP address. It supports both IPv4 and IPv6 lookup.",
@@ -19,7 +19,6 @@ setuptools.setup(
 		"Development Status :: 5 - Production/Stable",
 		"Intended Audience :: Developers",
 		"Topic :: Software Development :: Libraries :: Python Modules",
-		"Programming Language :: Python :: 2.7",
 		"Programming Language :: Python :: 3",
 		"License :: OSI Approved :: MIT License",
 		"Operating System :: OS Independent",
