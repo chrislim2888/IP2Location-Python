@@ -96,12 +96,13 @@ if not hasattr(socket, 'inet_pton'):
     socket.inet_pton = inet_pton
 
 def is_ipv4(hostname):
-    ip_parts = hostname.split('.')
-    for i in range(0,len(ip_parts)):
-        if int(ip_parts[i]) > 255:
-            return False
     pattern = r'^([0-9]{1,3}[.]){3}[0-9]{1,3}$'
+    ip_parts = hostname.split('.')
     if match(pattern, hostname) is not None:
+        ip_parts = hostname.split('.')
+        for i in range(0,len(ip_parts)):
+            if int(ip_parts[i]) > 255:
+                return False
         return 4
     return False
 
