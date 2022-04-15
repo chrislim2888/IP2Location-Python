@@ -96,13 +96,12 @@ if not hasattr(socket, 'inet_pton'):
     socket.inet_pton = inet_pton
 
 def is_ipv4(hostname):
-    pattern = r'^([0-9]{1,3}[.]){3}[0-9]{1,3}$'
     ip_parts = hostname.split('.')
+    for i in range(0,len(ip_parts)):
+        if int(ip_parts[i]) > 255:
+            return False
+    pattern = r'^([0-9]{1,3}[.]){3}[0-9]{1,3}$'
     if match(pattern, hostname) is not None:
-        ip_parts = hostname.split('.')
-        for i in range(0,len(ip_parts)):
-            if int(ip_parts[i]) > 255:
-                return False
         return 4
     return False
 
@@ -674,19 +673,29 @@ class IP2LocationWebService(object):
 class IP2LocationAPIError(Exception):
     """Raise for IP2Location API Error Message"""
 
-class AddressValueError(ValueError):
-    """A Value Error related to the address."""
-
 class IP2LocationIPTools(object):
 
     def is_ipv4(self, ip):
-        ip_parts = ip.split('.')
-        for i in range(0,len(ip_parts)):
-            if int(ip_parts[i]) > 255:
+        if '.' in ip:
+            ip_parts = ip.split('.')
+            if len(ip_parts) == 4:
+                for i in range(0,len(ip_parts)):
+                    if ip_parts[i].isdigit():
+                        if int(ip_parts[i]) > 255:
+                            print('1')
+                            return False
+                    else:
+                        print('2')
+                        return False
+                pattern = r'^([0-9]{1,3}[.]){3}[0-9]{1,3}$'
+                if match(pattern, ip) is not None:
+                    return True
+            else:
+                print('3')
                 return False
-        pattern = r'^([0-9]{1,3}[.]){3}[0-9]{1,3}$'
-        if match(pattern, ip) is not None:
-            return True
+        else:
+            print('4')
+            return False
         return False
 
     def is_ipv6(self, ip):
@@ -705,15 +714,21 @@ class IP2LocationIPTools(object):
         return ipnum
     
     def decimal_to_ipv4(self, decimal):
+        if decimal.isdigit() is False:
+            return
         if (int(decimal) > 4294967295):
             return
         else:
             return (socket.inet_ntoa(struct.pack('!I', int(decimal))))
     
     def ipv6_to_decimal(self, ip):
+        if self.is_ipv6(ip) is False:
+            return
         return(int(ipaddress.ip_address(u(ip))))
     
     def decimal_to_ipv6(self, decimal):
+        if decimal.isdigit() is False:
+            return
         result = ipaddress.IPv6Address(int(decimal))
         if (result.ipv4_mapped != None):
             return('::ffff:' + str(result.ipv4_mapped))
@@ -721,6 +736,10 @@ class IP2LocationIPTools(object):
             return str(result)
     
     def ipv4_to_cidr(self, from_ip, to_ip):
+        if self.is_ipv4(from_ip) is False:
+            return
+        if self.is_ipv4(to_ip) is False:
+            return
         startip = ipaddress.IPv4Address(u(from_ip))
         endip = ipaddress.IPv4Address(u(to_ip))
         ar = [ipaddr for ipaddr in ipaddress.summarize_address_range(startip, endip)]
@@ -730,6 +749,10 @@ class IP2LocationIPTools(object):
         return (ar1)
     
     def ipv6_to_cidr(self, from_ip, to_ip):
+        if self.is_ipv6(from_ip) is False:
+            return
+        if self.is_ipv6(to_ip) is False:
+            return
         startip = ipaddress.IPv6Address(u(from_ip))
         endip = ipaddress.IPv6Address(u(to_ip))
         ar = [ipaddr for ipaddr in ipaddress.summarize_address_range(startip, endip)]
@@ -739,10 +762,14 @@ class IP2LocationIPTools(object):
         return (ar1)
     
     def cidr_to_ipv4(self, cidr):
+        if '/' not in cidr:
+            return
         net=ipaddress.ip_network(u(cidr))
         return({"ip_start": str(net[0]), "ip_end": str(net[-1])})
     
     def cidr_to_ipv6(self, cidr):
+        if '/' not in cidr:
+            return
         parts = cidr.split('/')
         hexstartaddress = binascii.hexlify(socket.inet_pton(socket.AF_INET6, parts[0]))
         if (len(hexstartaddress) < 16):
@@ -764,8 +791,12 @@ class IP2LocationIPTools(object):
         return({"ip_start": self.expand_ipv6(parts[0]), "ip_end": self.expand_ipv6(socket.inet_ntop(socket.AF_INET6, binlastaddress))})
     
     def compressed_ipv6(self, ip):
+        if self.is_ipv6(ip) is False:
+            return
         return ((ipaddress.IPv6Address(u(ip)).compressed))
     
     def expand_ipv6(self, ip):
+        if self.is_ipv6(ip) is False:
+            return
         return ((ipaddress.IPv6Address(u(ip)).exploded))
 

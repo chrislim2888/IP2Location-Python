@@ -49,6 +49,7 @@ print (rec)
 print ("\n")
 print ("Credit Remaining: {}\n".format(ws.getcredit()))
 
+# IP Tools
 ipTools = IP2Location.IP2LocationIPTools()
 print(str(ipTools.is_ipv4('8.8.8.8')))
 print(str(ipTools.is_ipv6('2001:4860:4860::8888')))
