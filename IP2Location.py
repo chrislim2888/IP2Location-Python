@@ -682,19 +682,15 @@ class IP2LocationIPTools(object):
                 for i in range(0,len(ip_parts)):
                     if ip_parts[i].isdigit():
                         if int(ip_parts[i]) > 255:
-                            print('1')
                             return False
                     else:
-                        print('2')
                         return False
                 pattern = r'^([0-9]{1,3}[.]){3}[0-9]{1,3}$'
                 if match(pattern, ip) is not None:
                     return True
             else:
-                print('3')
                 return False
         else:
-            print('4')
             return False
         return False
 
