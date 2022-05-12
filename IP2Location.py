@@ -474,15 +474,7 @@ class IP2Location(object):
         ''' Parses address and returns IP version. Raises exception on invalid argument '''
         ipv = 0
         ipnum = -1
-        if is_ipv4(addr) == 4 and '256' not in addr:
-            try:
-                # ipnum = int(ipaddress.IPv4Address(addr))
-                ipnum = struct.unpack('!L', socket.inet_pton(socket.AF_INET, addr))[0]
-                ipv = 4
-            except (socket.error, OSError, ValueError):
-                ipv = 0
-                ipnum = -1
-        elif is_ipv6(addr) == 6:
+        if is_ipv6(addr) == 6:
             try:
                 ipv = 6
                 # ipnum = int(int(ipaddress.IPv6Address(addr)).__str__())
@@ -531,6 +523,14 @@ class IP2Location(object):
                     ipnum = ipnum - 281470681743360
                 else:
                     ipv = 6
+            except (socket.error, OSError, ValueError):
+                ipv = 0
+                ipnum = -1
+        elif is_ipv4(addr) == 4 and '256' not in addr:
+            try:
+                # ipnum = int(ipaddress.IPv4Address(addr))
+                ipnum = struct.unpack('!L', socket.inet_pton(socket.AF_INET, addr))[0]
+                ipv = 4
             except (socket.error, OSError, ValueError):
                 ipv = 0
                 ipnum = -1
@@ -680,7 +680,7 @@ class IP2LocationIPTools(object):
             ip_parts = ip.split('.')
             if len(ip_parts) == 4:
                 for i in range(0,len(ip_parts)):
-                    if ip_parts[i].isdigit():
+                    if str(ip_parts[i]).isdigit():
                         if int(ip_parts[i]) > 255:
                             return False
                     else:
@@ -710,7 +710,7 @@ class IP2LocationIPTools(object):
         return ipnum
     
     def decimal_to_ipv4(self, decimal):
-        if decimal.isdigit() is False:
+        if str(decimal).isdigit() is False:
             return
         if (int(decimal) > 4294967295):
             return
@@ -723,7 +723,7 @@ class IP2LocationIPTools(object):
         return(int(ipaddress.ip_address(u(ip))))
     
     def decimal_to_ipv6(self, decimal):
-        if decimal.isdigit() is False:
+        if str(decimal).isdigit() is False:
             return
         result = ipaddress.IPv6Address(int(decimal))
         if (result.ipv4_mapped != None):
