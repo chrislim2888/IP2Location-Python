@@ -79,7 +79,7 @@ else:
         return x.encode('ascii')
         
 # Windows version of Python does not provide it
-#          for compatibility with older versions of Windows.
+# for compatibility with older versions of Windows.
 if not hasattr(socket, 'inet_pton'):
     def inet_pton(t, addr):
         import ctypes
@@ -95,14 +95,23 @@ if not hasattr(socket, 'inet_pton'):
         return out_addr_p.raw
     socket.inet_pton = inet_pton
 
-def is_ipv4(hostname):
-    ip_parts = hostname.split('.')
-    for i in range(0,len(ip_parts)):
-        if int(ip_parts[i]) > 255:
+def is_ipv4(ip):
+    if '.' in ip:
+        ip_parts = ip.split('.')
+        if len(ip_parts) == 4:
+            for i in range(0,len(ip_parts)):
+                if str(ip_parts[i]).isdigit():
+                    if int(ip_parts[i]) > 255:
+                        return False
+                else:
+                    return False
+            pattern = r'^([0-9]{1,3}[.]){3}[0-9]{1,3}$'
+            if match(pattern, ip) is not None:
+                return 4
+        else:
             return False
-    pattern = r'^([0-9]{1,3}[.]){3}[0-9]{1,3}$'
-    if match(pattern, hostname) is not None:
-        return 4
+    else:
+        return False
     return False
 
 def is_ipv6(hostname):
@@ -187,20 +196,26 @@ class IP2Location(object):
             self._f = open(filename, 'rb')
         else:
             raise ValueError("Invalid mode. Please enter either FILE_IO or SHARED_MEMORY.")
-        self._dbtype = struct.unpack('B', self._f.read(1))[0]
-        self._dbcolumn = struct.unpack('B', self._f.read(1))[0]
-        self._dbyear = struct.unpack('B', self._f.read(1))[0]
-        self._dbmonth = struct.unpack('B', self._f.read(1))[0]
-        self._dbday = struct.unpack('B', self._f.read(1))[0]
-        self._ipv4dbcount = struct.unpack('<I', self._f.read(4))[0]
-        self._ipv4dbaddr = struct.unpack('<I', self._f.read(4))[0]
-        self._ipv6dbcount = struct.unpack('<I', self._f.read(4))[0]
-        self._ipv6dbaddr = struct.unpack('<I', self._f.read(4))[0]
-        self._ipv4indexbaseaddr = struct.unpack('<I', self._f.read(4))[0]
-        self._ipv6indexbaseaddr = struct.unpack('<I', self._f.read(4))[0]
-        self._productcode = struct.unpack('B', self._f.read(1))[0]
-        self._licensecode = struct.unpack('B', self._f.read(1))[0]
-        self._databasesize = struct.unpack('B', self._f.read(1))[0]
+        if (self.mode == 'SHARED_MEMORY'):
+            # We can directly use slice notation to read content from mmap object. https://docs.python.org/3/library/mmap.html?highlight=mmap#module-mmap
+            header_row = self._f[0:32]
+        else:
+            self._f.seek(0)
+            header_row = self._f.read(32)
+        self._dbtype = struct.unpack('B', header_row[0:1])[0]
+        self._dbcolumn = struct.unpack('B', header_row[1:2])[0]
+        self._dbyear = struct.unpack('B', header_row[2:3])[0]
+        self._dbmonth = struct.unpack('B', header_row[3:4])[0]
+        self._dbday = struct.unpack('B', header_row[4:5])[0]
+        self._ipv4dbcount = struct.unpack('<I', header_row[5:9])[0]
+        self._ipv4dbaddr = struct.unpack('<I', header_row[9:13])[0]
+        self._ipv6dbcount = struct.unpack('<I', header_row[13:17])[0]
+        self._ipv6dbaddr = struct.unpack('<I', header_row[17:21])[0]
+        self._ipv4indexbaseaddr = struct.unpack('<I', header_row[21:25])[0]
+        self._ipv6indexbaseaddr = struct.unpack('<I', header_row[25:29])[0]
+        self._productcode = struct.unpack('B', header_row[29:30])[0]
+        self._licensecode = struct.unpack('B', header_row[30:31])[0]
+        self._databasesize = struct.unpack('B', header_row[31:32])[0]
         if (self._productcode != 1) :
             if (self._dbyear > 20 and self._productcode != 0) :
                 self._f.close()
@@ -329,12 +344,14 @@ class IP2Location(object):
 
     def _reads(self, offset):
         self._f.seek(offset - 1)
-        n = struct.unpack('B', self._f.read(1))[0]
-        # return u(self._f.read(n))
+        ''''''
+        data = self._f.read(257)
+        char_count = struct.unpack('B', data[0:1])[0]
+        string = data[1:char_count+1]
         if sys.version < '3':
-            return str(self._f.read(n).decode('iso-8859-1').encode('utf-8'))
+            return str(string.decode('iso-8859-1').encode('utf-8'))
         else :
-            return u(self._f.read(n).decode('iso-8859-1').encode('utf-8'))
+            return u(string.decode('iso-8859-1').encode('utf-8'))
 
     def _readi(self, offset):
         self._f.seek(offset - 1)
@@ -470,6 +487,29 @@ class IP2Location(object):
         no = no + block[0] * 256 * 256 * 256
         return int(no)
 
+    def calc_off(self, off, baseaddr, what, mid):
+        # return baseaddr + mid * (self._dbcolumn * 4 + off) + off + 4 * (what[self._dbtype]-1)
+        return baseaddr + mid * (self._dbcolumn * 4 + off) + off + 4 * (what-1)
+
+    def read32x2(self, offset):
+        self._f.seek(offset - 1)
+        data = self._f.read(8)
+        return struct.unpack('<L', data[0:4])[0], struct.unpack('<L', data[4:8])[0]
+
+    def readRow32(self, offset):
+        data_length = self._dbcolumn * 4 + 4
+        self._f.seek(offset - 1)
+        raw_data = self._f.read(data_length)
+        ip_from = struct.unpack('<L', raw_data[0:4])[0]
+        ip_to = struct.unpack('<L', raw_data[data_length-4:data_length])[0]
+        return (ip_from, ip_to)
+
+    def readRow128(self, offset):
+        data_length = self._dbcolumn * 4 + 12 + 16
+        self._f.seek(offset - 1)
+        raw_data = self._f.read(data_length)
+        return ((struct.unpack('<L', raw_data[12:16])[0] << 96) | (struct.unpack('<L', raw_data[8:12])[0] << 64) | (struct.unpack('<L', raw_data[4:8])[0] << 32) | struct.unpack('<L', raw_data[0:4])[0], (struct.unpack('<L', raw_data[data_length-4:data_length])[0] << 96) | (struct.unpack('<L', raw_data[data_length-8:data_length-4])[0] << 64) | (struct.unpack('<L', raw_data[data_length-12:data_length-8])[0] << 32) | struct.unpack('<L', raw_data[data_length-16:data_length-12])[0])
+
     def _parse_addr(self, addr): 
         ''' Parses address and returns IP version. Raises exception on invalid argument '''
         ipv = 0
@@ -537,12 +577,8 @@ class IP2Location(object):
         return ipv, ipnum
         
     def _get_record(self, ip):
-        # global original_ip
         self.original_ip = ip
         low = 0
-        # ipv = self._parse_addr(ip)
-        # ipv = self._parse_addr(ip)[0]
-        # ipnum = self._parse_addr(ip)[1]
         ipv, ipnum = self._parse_addr(ip)
         if ipv == 0:
             rec = IP2LocationRecord()
@@ -581,8 +617,9 @@ class IP2Location(object):
                 high = self._ipv4dbcount
                 if self._ipv4indexbaseaddr > 0:
                     indexpos = ((ipno >> 16) << 3) + self._ipv4indexbaseaddr
-                    low = self._readi(indexpos)
-                    high = self._readi(indexpos + 4)
+                    # low = self._readi(indexpos)
+                    # high = self._readi(indexpos + 4)
+                    low,high = self.read32x2(indexpos)
 
             elif ipv == 6:
                 if self._ipv6dbcount == 0:
@@ -627,8 +664,10 @@ class IP2Location(object):
 
             while low <= high:
                 mid = int((low + high) / 2)
-                ipfrom = self._readip(baseaddr + (mid) * (self._dbcolumn * 4 + off), ipv)
-                ipto = self._readip(baseaddr + (mid + 1) * (self._dbcolumn * 4 + off), ipv)
+                if ipv == 4:
+                    ipfrom, ipto = self.readRow32(baseaddr + mid * self._dbcolumn * 4 )
+                elif ipv == 6:
+                    ipfrom, ipto = self.readRow128(baseaddr + mid * ((self._dbcolumn * 4) + 12) )
 
                 if ipfrom <= ipno < ipto:
                     return self._read_record(mid, ipv)
