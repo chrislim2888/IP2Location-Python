@@ -1,4 +1,4 @@
-# Copyright (C) 2005-2019 IP2Location.com
+# Copyright (C) 2005-2022 IP2Location.com
 # All Rights Reserved
 #
 # This library is free software: you can redistribute it and/or
@@ -51,16 +51,23 @@ print ("Credit Remaining: {}\n".format(ws.getcredit()))
 
 # IP Tools
 ipTools = IP2Location.IP2LocationIPTools()
-print(str(ipTools.is_ipv4('8.8.8.8')))
-print(str(ipTools.is_ipv6('2001:4860:4860::8888')))
-print(ipTools.ipv4_to_decimal('8.8.8.8'))
+print(str(ipTools.is_ipv4("8.8.8.8")))
+print(str(ipTools.is_ipv6("2001:4860:4860::8888")))
+print(ipTools.ipv4_to_decimal("8.8.8.8"))
 print(ipTools.decimal_to_ipv4(134744072))
-print(ipTools.ipv6_to_decimal('2001:4860:4860::8888'))
+print(ipTools.ipv6_to_decimal("2001:4860:4860::8888"))
 print(ipTools.decimal_to_ipv6(42541956123769884636017138956568135816))
-print(ipTools.ipv4_to_cidr('8.0.0.0', '8.255.255.255'))
-print(ipTools.cidr_to_ipv4('8.0.0.0/8'))
-print(ipTools.ipv6_to_cidr('2002:0000:0000:1234:abcd:ffff:c0a8:0000', '2002:0000:0000:1234:ffff:ffff:ffff:ffff'))
-print(ipTools.cidr_to_ipv6('2002::1234:abcd:ffff:c0a8:101/64'))
-print(ipTools.compressed_ipv6('2002:0000:0000:1234:FFFF:FFFF:FFFF:FFFF'))
-print(ipTools.expand_ipv6('2002::1234:FFFF:FFFF:FFFF:FFFF'))
+print(ipTools.ipv4_to_cidr("8.0.0.0", "8.255.255.255"))
+print(ipTools.cidr_to_ipv4("8.0.0.0/8"))
+print(ipTools.ipv6_to_cidr("2002:0000:0000:1234:abcd:ffff:c0a8:0000", "2002:0000:0000:1234:ffff:ffff:ffff:ffff"))
+print(ipTools.cidr_to_ipv6("2002::1234:abcd:ffff:c0a8:101/64"))
+print(ipTools.compressed_ipv6("2002:0000:0000:1234:FFFF:FFFF:FFFF:FFFF"))
+print(ipTools.expand_ipv6("2002::1234:FFFF:FFFF:FFFF:FFFF"))
 
+# List country information
+country = IP2Location.Country(os.path.join("data", "IP2LOCATION-COUNTRY-INFORMATION-BASIC.CSV"))
+print(country.get_country_info("US"))
+
+# Get region code by country code and region
+region = IP2Location1.Region(os.path.join("data", "IP2LOCATION-ISO3166-2.CSV")
+print(region.get_region_code("US", "California"))

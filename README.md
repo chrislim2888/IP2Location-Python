@@ -1,4 +1,4 @@
-# IP2Location 8.8.1
+# IP2Location 8.9.0
 
 
 This is a IP2Location Python library that enables the user to find the country, region or state, city, latitude and longitude, ZIP code, time zone, Internet Service Provider (ISP) or company name, domain name, net speed, area code, weather station code, weather station name, mobile country code (MCC), mobile network code (MNC) and carrier brand, elevation, usage type, address type and IAB category by IP address or hostname originates from. The library reads the geo location information from **IP2Location BIN data** file.
@@ -89,7 +89,25 @@ Below is the description of the functions available in the **IP Tools** class.
 | ipv6_to_cidr    | Convert IPv6 range into a list of IPv6 CIDR notation.        |
 | cidr_to_ipv6    | Convert IPv6 CIDR notation into a list of IPv6 addresses.    |
 | compressed_ipv6 | Compress a IPv6 to shorten the length.                       |
-| expand_ipv6     | Expand a shorten IPv6 to full length.                        |
+| expand_ipv6     | Expand a shorten IPv6 to full length.                       
+
+### Country Class
+
+Below is the description of the functions available in the **Country** class.
+
+| Function Name                          | Description                                                  |
+| -------------------------------------- | ------------------------------------------------------------ |
+| Constructor                            | Expect a IP2Location Country Information CSV file. This database is free for download at https://www.ip2location.com/free/country-information |
+| get_country_info | Provide a ISO 3166 country code to get the country information in array. Will return a full list of countries information if country code not provided. Below is the information returned: <ul><li>country_code</li><li>country_alpha3_code</li><li>country_numeric_code</li><li>capital</li><li>country_demonym</li><li>total_area</li><li>population</li><li>idd_code</li><li>currency_code</li><li>currency_name</li><li>currency_symbol</li><li>lang_code</li><li>lang_name</li><li>cctld</li></ul> |
+
+### Region Class
+
+Below is the description of the functions available in the **Region** class.
+
+| Function Name                                       | Description                                                  |
+| --------------------------------------------------- | ------------------------------------------------------------ |
+| Constructor                                         | Expect a IP2Location ISO 3166-2 Subdivision Code CSV file. This database is free for download at https://www.ip2location.com/free/iso3166-2 |
+| get_region_code | Provide a ISO 3166 country code and the region name to get ISO 3166-2 subdivision code for the region. | |
 
 # Testing
 
