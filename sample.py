@@ -1,4 +1,4 @@
-# Copyright (C) 2005-2022 IP2Location.com
+# Copyright (C) 2005-2023 IP2Location.com
 # All Rights Reserved
 #
 # This library is free software: you can redistribute it and/or
@@ -40,7 +40,10 @@ print("Elevation             : " + rec.elevation)
 print("Usage Type            : " + rec.usage_type)
 print("Address Type          : " + rec.address_type)
 print("Category              : " + rec.category)
-print("\nYou may download the DB25 sample BIN at http://www.ip2location.com/downloads/sample6.bin.db25.zip for full data display.")
+print("District              : " + rec.district)
+print("ASN                   : " + rec.asn)
+print("AS                    : " + rec.as_name)
+print("\nYou may download the DB26 sample BIN at http://www.ip2location.com/downloads/sample6.bin.db26.zip for full data display.")
 
 # Web Service
 ws = IP2Location.IP2LocationWebService("demo","WS25",True)
@@ -69,5 +72,5 @@ country = IP2Location.Country(os.path.join("data", "IP2LOCATION-COUNTRY-INFORMAT
 print(country.get_country_info("US"))
 
 # Get region code by country code and region
-region = IP2Location1.Region(os.path.join("data", "IP2LOCATION-ISO3166-2.CSV")
+region = IP2Location.Region(os.path.join("data", "IP2LOCATION-ISO3166-2.CSV")
 print(region.get_region_code("US", "California"))

@@ -16,7 +16,7 @@ def testinvaliddatabase():
 
 def testfunctionexist():
     database = IP2Location.IP2Location(ipv4database)
-    functions_list = ['open', 'close', 'get_all', 'get_country_short', 'get_country_long', 'get_region', 'get_city', 'get_latitude', 'get_longitude', 'get_isp', 'get_domain', 'get_zipcode', 'get_timezone', 'get_netspeed', 'get_idd_code', 'get_area_code', 'get_weather_code', 'get_weather_name', 'get_mcc', 'get_mnc', 'get_mobile_brand', 'get_elevation', 'get_usage_type']
+    functions_list = ['open', 'close', 'get_all', 'get_country_short', 'get_country_long', 'get_region', 'get_city', 'get_latitude', 'get_longitude', 'get_isp', 'get_domain', 'get_zipcode', 'get_timezone', 'get_netspeed', 'get_idd_code', 'get_area_code', 'get_weather_code', 'get_weather_name', 'get_mcc', 'get_mnc', 'get_mobile_brand', 'get_elevation', 'get_usage_type', 'get_district', 'get_asn', 'get_as']
     for x in range(len(functions_list)): 
         assert hasattr(database, functions_list[x]) == True, "Function did not exist."
 
@@ -128,6 +128,21 @@ def testgetelevation():
 def testgetusagetype():
     database = IP2Location.IP2Location(ipv4database)
     rec = database.get_usage_type("8.8.8.8")
+    assert rec == None
+
+def testgetdistrict():
+    database = IP2Location.IP2Location(ipv4database)
+    rec = database.get_district("8.8.8.8")
+    assert rec == None
+
+def testgetasn():
+    database = IP2Location.IP2Location(ipv4database)
+    rec = database.get_asn("8.8.8.8")
+    assert rec == None
+
+def testgetas():
+    database = IP2Location.IP2Location(ipv4database)
+    rec = database.get_as("8.8.8.8")
     assert rec == None
 
 def testipv6countrycode():

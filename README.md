@@ -1,4 +1,4 @@
-# IP2Location 8.9.0
+# IP2Location 8.10.0
 
 
 This is a IP2Location Python library that enables the user to find the country, region or state, city, latitude and longitude, ZIP code, time zone, Internet Service Provider (ISP) or company name, domain name, net speed, area code, weather station code, weather station name, mobile country code (MCC), mobile network code (MNC) and carrier brand, elevation, usage type, address type and IAB category by IP address or hostname originates from. The library reads the geo location information from **IP2Location BIN data** file.
@@ -38,29 +38,32 @@ Below is the description of the functions available in the **BIN Database** look
 | ----------------- | ------------------------------------------------------------ |
 | open              | Open the IP2Location BIN data for lookup. Default mode: File I/O. |
 | close             | Close and clean up the file pointer.                         |
-| get_all           | Return the geolocation information in array.                 |
-| get_country_short | Return the ISO3166-1 country code (2-digits) of the IP address. |
-| get_country_long  | Return the ISO3166-1 country name of the IP address.         |
-| get_region        | Return the ISO3166-2 region name of the IP address. Please visit [ISO3166-2 Subdivision Code](https://www.ip2location.com/free/iso3166-2) for the information of ISO3166-2 supported |
-| get_city          | Return the city name of the IP address.                      |
-| get_latitude      | Return the city latitude of the IP address.                  |
-| get_longitude     | Return the city longtitude of the IP address.                |
-| get_isp           | Return the ISP name of the IP address.                       |
-| get_domain        | Return the domain name of IP address.                        |
-| get_zipcode       | Return the zipcode of the city.                              |
-| get_timezone      | Return the UTC time zone (with DST supported).               |
-| get_netspeed      | Return the Internet connection type. Please see [Internet Connection Type](https://github.com/[chrislim2888/IP2Location-Python](https://github.com/chrislim2888/IP2Location-Python)#internet-connection-type) for details. |
-| get_idd_code      | Return the IDD prefix to call the city from another country. |
-| get_area_code     | Return the area code of the city.                            |
-| get_weather_code  | Return the nearest weather observation station code.         |
-| get_weather_name  | Return the nearest weather observation station name.         |
-| get_mcc           | Return the Mobile Country Codes (MCC).                       |
-| get_mnc           | Return the Mobile Network Code (MNC).                        |
+| get_all           | Returns the geolocation information in array.                 |
+| get_country_short | Returns the ISO3166-1 country code (2-digits) of the IP address. |
+| get_country_long  | Returns the ISO3166-1 country name of the IP address.         |
+| get_region        | Returns the ISO3166-2 region name of the IP address. Please visit [ISO3166-2 Subdivision Code](https://www.ip2location.com/free/iso3166-2) for the information of ISO3166-2 supported |
+| get_city          | Returns the city name of the IP address.                      |
+| get_latitude      | Returns the city latitude of the IP address.                  |
+| get_longitude     | Returns the city longtitude of the IP address.                |
+| get_isp           | Returns the ISP name of the IP address.                       |
+| get_domain        | Returns the domain name of IP address.                        |
+| get_zipcode       | Returns the zipcode of the city.                              |
+| get_timezone      | Returns the UTC time zone (with DST supported).               |
+| get_netspeed      | Returns the Internet connection type. Please see [Internet Connection Type](https://github.com/[chrislim2888/IP2Location-Python](https://github.com/chrislim2888/IP2Location-Python)#internet-connection-type) for details. |
+| get_idd_code      | Returns the IDD prefix to call the city from another country. |
+| get_area_code     | Returns the area code of the city.                            |
+| get_weather_code  | Returns the nearest weather observation station code.         |
+| get_weather_name  | Returns the nearest weather observation station name.         |
+| get_mcc           | Returns the Mobile Country Codes (MCC).                       |
+| get_mnc           | Returns the Mobile Network Code (MNC).                        |
 | get_mobile_brand  | Commercial brand associated with the mobile carrier. Please visit [Mobile Carrier Coverage](https://www.ip2location.com/mobile-carrier-coverage) to view the coverage report. |
-| get_elevation     | Return average height of city above sea level in meters (m). |
-| get_usage_type    | Return the ISP's usage type of IP address. Please see [Usage Type](https://github.com/[chrislim2888/IP2Location-Python](https://github.com/chrislim2888/IP2Location-Python)#usage-type) for details. |
-| get_address_type  | Return the IP address type (A-Anycast, B-Broadcast, M-Multicast & U-Unicast) of IP address or domain name. |
-| get_category      | Return the IAB content taxonomy category of IP address or domain name. You can get a full list of IAB content taxonomy category from [here](https://www.ip2location.com/free/iab-categories). |
+| get_elevation     | Returns average height of city above sea level in meters (m). |
+| get_usage_type    | Returns the ISP's usage type of IP address. Please see [Usage Type](https://github.com/[chrislim2888/IP2Location-Python](https://github.com/chrislim2888/IP2Location-Python)#usage-type) for details. |
+| get_address_type  | Returns the IP address type (A-Anycast, B-Broadcast, M-Multicast & U-Unicast) of IP address or domain name. |
+| get_category      | Returns the IAB content taxonomy category of IP address or domain name. You can get a full list of IAB content taxonomy category from [here](https://www.ip2location.com/free/iab-categories). |
+| get_district      | Returns the district or county name of IP address. |
+| get_asn           | Returns the Autonomous system number (ASN) of IP address. |
+| get_as            | Returns the Autonomous system (AS) name of IP address. |
 
 ## Web Service
 
