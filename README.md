@@ -8,7 +8,7 @@ Supported IPv4 and IPv6 address.
 For more details, please visit:
 [https://www.ip2location.com/developers/python](https://www.ip2location.com/developers/python)
 
-** Requires Python 3.5 and above.**
+**Requires Python 3.5 and above.**
 
 # Online Documentation
 Online documentation is available at here: [https://ip2location-python.readthedocs.io/en/latest/index.html](https://ip2location-python.readthedocs.io/en/latest/index.html).
