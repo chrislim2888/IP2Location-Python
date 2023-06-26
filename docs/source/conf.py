@@ -48,8 +48,6 @@ intersphinx_mapping = {
 }
 intersphinx_disabled_domains = ['std']
 
-# autosummary_generate = True  # Turn on sphinx.ext.autosummary
-
 # templates_path = ['_templates']
 
 # -- Options for HTML output
