@@ -21,6 +21,7 @@ extensions = [
     # 'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
     'myst_parser',
+    'sphinx_copybutton',
 ]
 
 # https://myst-parser.readthedocs.io/en/latest/syntax/optional.html
