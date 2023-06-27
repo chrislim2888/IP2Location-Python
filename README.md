@@ -6,7 +6,7 @@ This library reads geo-location information from the **IP2Location BIN database*
 
 # Developer Documentation
 
-To learn more about installation, usage, and code examples, please visit the developer documentation at [https://ip2location-python.readthedocs.io/en/latest/index.html](https://ip2location-python.readthedocs.io/en/latest/index.html){:target="_blank"}.
+To learn more about installation, usage, and code examples, please visit the developer documentation at [https://ip2location-python.readthedocs.io/en/latest/index.html](https://ip2location-python.readthedocs.io/en/latest/index.html).
 
 # IP2Location BIN Databases
 
