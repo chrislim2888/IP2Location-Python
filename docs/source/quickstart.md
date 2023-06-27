@@ -2,8 +2,8 @@
 
 ## Dependencies
 
-This library requires IP2Location BIN data file to function. You may
-download the BIN data file at
+This library requires IP2Location BIN database to function. You may
+download the BIN database at
 
 -   IP2Location LITE BIN Data (Free): <https://lite.ip2location.com>
 -   IP2Location Commercial BIN Data (Comprehensive):
