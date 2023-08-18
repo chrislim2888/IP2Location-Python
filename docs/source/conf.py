@@ -80,3 +80,5 @@ html_logo = 'images/ipl-logo-square-1200.png'
 html_favicon = 'images/favicon.ico'
 
 html_title = "IP2Location Python"
+
+html_extra_path = ["googlead5f0f82eb100b8b.html"]
