@@ -43,6 +43,16 @@ myst_enable_extensions = [
     # "tasklist",
 ]
 
+# https://myst-parser.readthedocs.io/en/latest/configuration.html#setting-html-metadata
+# language = "en"
+myst_html_meta = {
+    # "description lang=en": "metadata description",
+    # "description lang=fr": "description des métadonnées",
+    "keywords": "Sphinx, MyST",
+    "google-site-verification": "DeW6mXDyMnMt4i61ZJBNuoADPimo5266DKob7Z7d6i4",
+    # "property=og:locale":  "en_US"
+}
+
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None),
     'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
