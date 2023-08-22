@@ -1,7 +1,7 @@
 # Configuration file for the Sphinx documentation builder.
 # Read https://www.sphinx-doc.org/en/master/usage/configuration.html for more options available
 
-import sphinx_pdj_theme
+# import sphinx_pdj_theme
 
 # -- Project information
 
