@@ -187,31 +187,15 @@ class IP2LocationIPTools(object):
     def cidr_to_ipv4(self, cidr):
         if '/' not in cidr:
             return
-        net=ipaddress.ip_network(u(cidr))
+        net = ipaddress.ip_network(u(cidr))
         return({"ip_start": str(net[0]), "ip_end": str(net[-1])})
     
     def cidr_to_ipv6(self, cidr):
         if '/' not in cidr:
             return
-        parts = cidr.split('/')
-        hexstartaddress = binascii.hexlify(socket.inet_pton(socket.AF_INET6, parts[0]))
-        if (len(hexstartaddress) < 16):
-            hexstartaddress = hexstartaddress.zfill(16-hexstartaddress.len())
-        bits = 128 - int(parts[1])
-        hexlastaddress = hexstartaddress
-        pos = 31
-        while (bits > 0):
-            int_value = int(hexlastaddress[pos:pos+1], 16)
-            # new = binascii.hexlify((int_value | (pow(2, min(4, bits)) - 1)).to_bytes(1, 'big'))
-            new = binascii.hexlify((int_value | (pow(2, min(4, bits)) - 1)).to_bytes(1, 'little'))[1:]
-            hexlastaddresslist = list(u(hexlastaddress))
-            hexlastaddresslist[pos] = u(new)
-            string_hexlastaddresslist = [str(int) for int in hexlastaddresslist] 
-            hexlastaddress = ''.join(string_hexlastaddresslist)
-            bits = bits - 4
-            pos = pos - 1
-        binlastaddress = binascii.unhexlify(b(hexlastaddress))
-        return({"ip_start": self.expand_ipv6(parts[0]), "ip_end": self.expand_ipv6(socket.inet_ntop(socket.AF_INET6, binlastaddress))})
+        net = ipaddress.ip_network(cidr, False)
+        # return({"ip_start": net.network_address.exploded, "ip_end": net.broadcast_address.exploded})
+        return({"ip_start": str(net[0]), "ip_end": str(net[-1])})
     
     def compressed_ipv6(self, ip):
         if self.is_ipv6(ip) is False:
