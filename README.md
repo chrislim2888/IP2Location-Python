@@ -1,4 +1,4 @@
-# IP2Location 8.10.0
+# IP2Location 8.10.2
 
 ![PyPI](https://img.shields.io/pypi/v/IP2Location)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/IP2Location)
