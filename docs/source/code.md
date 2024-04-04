@@ -6,7 +6,7 @@
 Initiate the IP2Location class and load the IP2Location BIN database.
 
 :param str database_file_path: (Required) The file path links to IP2Location BIN databases.
-:param str file_mode: (Optional) The file mode used to open the IP2Location BIN database. Default is File I/O.
+:param str file_mode: (Optional) The file mode used to open the IP2Location BIN database. Available values are FILE_IO and SHARED_MEMORY. Default is File I/O.
 ```
 
 ```{py:function} get_all(ip_address)
