@@ -31,6 +31,14 @@ An outdated BIN database was provided in the databases folder for your testing. 
 pip install IP2Location
 ```
 
+### Installation in Arch Linux
+
+For Arch Linux user, you can install the module using the following command:
+```Bash
+git clone https://aur.archlinux.org/ip2location-python.git && cd ip2location-io-python
+makepkg -si
+```
+
 ## Sample Codes
 
 ### Query geolocation information from BIN database
