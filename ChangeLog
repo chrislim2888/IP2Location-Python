@@ -1,3 +1,9 @@
+8.10.4	2024-10-04
+	* Tested with CPython and PyPy.
+
+8.10.3	2024-09-27
+	* Tested with Python 3.12.
+
 8.10.0 2023-04-19
 	* Added support for district, ASN and AS.
 
