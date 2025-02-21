@@ -1,4 +1,4 @@
-# IP2Location Python
+# IP2Location Python Library
 
 ![PyPI](https://img.shields.io/pypi/v/IP2Location)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/IP2Location)

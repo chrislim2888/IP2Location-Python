@@ -72,5 +72,5 @@ country = IP2Location.Country(os.path.join("data", "IP2LOCATION-COUNTRY-INFORMAT
 print(country.get_country_info("US"))
 
 # Get region code by country code and region
-region = IP2Location.Region(os.path.join("data", "IP2LOCATION-ISO3166-2.CSV")
+region = IP2Location.Region(os.path.join("data", "IP2LOCATION-ISO3166-2.CSV"))
 print(region.get_region_code("US", "California"))
