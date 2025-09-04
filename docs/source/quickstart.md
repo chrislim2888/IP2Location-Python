@@ -35,7 +35,7 @@ pip install IP2Location
 
 For Arch Linux user, you can install the module using the following command:
 ```Bash
-git clone https://aur.archlinux.org/ip2location-python.git && cd ip2location-io-python
+git clone https://aur.archlinux.org/ip2location-python.git && cd ip2location-python
 makepkg -si
 ```
 
@@ -86,12 +86,15 @@ print("Category              : " + rec.category)
 print("District              : " + rec.district)
 print("ASN                   : " + rec.asn)
 print("AS                    : " + rec.as_name)
+print("AS Domain             : " + rec.as_domain)
+print("AS Usage Type         : " + rec.as_usagetype)
+print("AS CIDR               : " + rec.as_cidr)
 print("\nYou may download the DB26 sample BIN at http://www.ip2location.com/downloads/sample6.bin.db26.zip for full data display.")
 ```
 
 ### Processing IP address using IP Tools class
 
-You can manupulate IP address, IP number and CIDR as below:
+You can manipulate IP address, IP number and CIDR as below:
 
 ``` python
 import IP2Location

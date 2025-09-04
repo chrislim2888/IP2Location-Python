@@ -33,8 +33,11 @@ _USAGETYPE_POSITION           = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 _ADDRESSTYPE_POSITION         = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 21)
 _CATEGORY_POSITION            = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 22)
 _DISTRICT_POSITION            = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23)
-_ASN_POSITION            = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24)
-_AS_POSITION            = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25)
+_ASN_POSITION                 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24)
+_AS_POSITION                  = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25)
+_ASDOMAIN_POSITION            = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26)
+_ASUSAGETYPE_POSITION         = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 27)
+_ASCIDR_POSITION              = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 28)
 
 if sys.version < '3':
     import urllib, httplib
@@ -156,6 +159,9 @@ class IP2LocationRecord:
     district = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
     asn = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
     as_name = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    as_domain = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    as_usagetype = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
+    as_cidr = "This parameter is unavailable in selected .BIN data file. Please upgrade data file."
 
     def __str__(self):
         return str(self.__dict__)
@@ -335,6 +341,18 @@ class IP2Location(object):
         ''' Get as_name '''
         rec = self.get_all(ip)
         return rec and rec.as_name
+    def get_asdomain(self, ip):
+        ''' Get as_domain '''
+        rec = self.get_all(ip)
+        return rec and rec.as_domain
+    def get_asusagetype(self, ip):
+        ''' Get as_usagetype '''
+        rec = self.get_all(ip)
+        return rec and rec.as_usagetype
+    def get_ascidr(self, ip):
+        ''' Get as_cidr '''
+        rec = self.get_all(ip)
+        return rec and rec.as_cidr
 
     def get_all(self, addr):
         ''' Get the whole record with all fields read from the file
@@ -491,6 +509,15 @@ class IP2Location(object):
 
         if _AS_POSITION[self._dbtype] != 0:
             rec.as_name = self._reads(struct.unpack('<I', raw_positions_row[((_AS_POSITION[self._dbtype]-1) * 4 - 4) : ((_AS_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+
+        if _ASDOMAIN_POSITION[self._dbtype] != 0:
+            rec.as_domain = self._reads(struct.unpack('<I', raw_positions_row[((_ASDOMAIN_POSITION[self._dbtype]-1) * 4 - 4) : ((_ASDOMAIN_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+
+        if _ASUSAGETYPE_POSITION[self._dbtype] != 0:
+            rec.as_usagetype = self._reads(struct.unpack('<I', raw_positions_row[((_ASUSAGETYPE_POSITION[self._dbtype]-1) * 4 - 4) : ((_ASUSAGETYPE_POSITION[self._dbtype]-1) * 4)])[0] + 1)
+
+        if _ASCIDR_POSITION[self._dbtype] != 0:
+            rec.as_cidr = self._reads(struct.unpack('<I', raw_positions_row[((_ASCIDR_POSITION[self._dbtype]-1) * 4 - 4) : ((_ASCIDR_POSITION[self._dbtype]-1) * 4)])[0] + 1)
 
         return rec
 
